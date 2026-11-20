@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% block crumb %}Регистрация{% endblock %}{% block content %}<section class="form-panel">
+<p class="eyebrow">ВАШЕ УЧЕБНОЕ ПРОСТРАНСТВО</p>
+<h1>Создать аккаунт</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button class="button">Зарегистрироваться</button>
+</form>
+<p>Есть аккаунт? <a href="{% url 'login' %}">Войти</a>
+</p>
+</section>{% endblock %}

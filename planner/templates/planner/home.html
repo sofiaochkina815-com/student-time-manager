@@ -1,0 +1,17 @@
+{% extends 'base.html' %}{% block content %}<section class="hero">
+<div>
+<p class="eyebrow">МЕНЬШЕ СПЕШКИ. БОЛЬШЕ ЯСНОСТИ.</p>
+<h1>Учёба в своём<br>ритме.</h1>
+<p class="lead">Соберите учебные задачи в одном месте, оцените нагрузку и найдите время на главное.</p>{% if user.is_authenticated %}<p>Вы вошли как <strong>{{ user.username }}</strong>.</p>{% else %}<a class="button" href="{% url 'register' %}">Начать планировать</a>
+<a class="inline-link" href="{% url 'login' %}">Уже есть аккаунт</a>{% endif %}</div>
+<aside class="intro-card">
+<span class="eyebrow">ВАШ ПЛАН</span>
+<h2>Один шаг за раз</h2>
+<ol>
+<li>Определите задачи на неделю</li>
+<li>Оцените время на выполнение</li>
+<li>Сопоставьте план с результатом</li>
+</ol>
+<p class="muted">Свой аккаунт — свои учебные данные.</p>
+</aside>
+</section>{% endblock %}

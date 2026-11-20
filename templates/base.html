@@ -1,0 +1,32 @@
+{% load static %}<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Такт — учебное время{% endblock %}</title>
+<link rel="stylesheet" href="{% static 'planner/app.css' %}">
+</head>
+<body>
+<header class="header">
+<a class="brand" href="{% url 'home' %}">
+<span class="brand-mark">т</span>такт<span class="brand-note">учебное время</span>
+</a>
+<nav aria-label="Главное меню">
+<a href="{% url 'home' %}">Главная</a>{% if user.is_authenticated %}<a href="{% url 'home' %}">Мой план</a>
+<form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-button">Выйти</button>
+</form>{% else %}<a href="{% url 'login' %}">Войти</a>
+<a class="button small" href="{% url 'register' %}">Создать аккаунт</a>{% endif %}</nav>
+</header>
+<main class="container">
+<nav class="breadcrumbs" aria-label="Хлебные крошки">
+<a href="{% url 'home' %}">Такт</a>
+<span>/</span>
+<span>{% block crumb %}Главная{% endblock %}</span>
+</nav>
+{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}</main>
+<footer class="footer">
+<span>Такт · учебный проект</span>
+<span>Очкина София Леонидовна</span>
+</footer>
+</body>
+</html>
