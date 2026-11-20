@@ -4,7 +4,8 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
-from .models import Task, TimeEntry
+from .models import Task, TimeEntry, WeekPlan
+from datetime import timedelta
 
 
 @transaction.atomic
@@ -23,3 +24,22 @@ def record_time(*, user, task_id, date, minutes, note=""):
         raise ValidationError("Сумма записей за сутки не может превышать 24 часа.")
     entry.save()
     return entry
+
+
+def week_summary(user, week_start):
+    start = week_start - timedelta(days=week_start.weekday())
+    end = start + timedelta(days=6)
+    tasks = Task.objects.filter(owner=user, due_date__range=(start, end))
+    times = TimeEntry.objects.filter(task__owner=user, date__range=(start, end))
+    plans_by_day = {row["due_date"]: row["total"] for row in tasks.values("due_date").annotate(total=Sum("planned_minutes"))}
+    actuals_by_day = {row["date"]: row["total"] for row in times.values("date").annotate(total=Sum("minutes"))}
+    days = [{"date": start+timedelta(days=offset), "planned": plans_by_day.get(start+timedelta(days=offset), 0), "actual": actuals_by_day.get(start+timedelta(days=offset), 0)} for offset in range(7)]
+    planned = sum(day["planned"] for day in days)
+    actual = sum(day["actual"] for day in days)
+    plan = WeekPlan.objects.filter(owner=user, week_start=start).first()
+    capacity = plan.capacity_minutes if plan else None
+    return {"start": start, "end": end, "days": days, "planned": planned, "actual": actual,
+            "capacity": capacity, "over_capacity": capacity is not None and planned > capacity,
+            "difference": capacity-planned if capacity is not None else None,
+            "task_count": tasks.count(), "completed_count": tasks.filter(is_done=True).count(),
+            "undated_count": Task.objects.filter(owner=user, is_done=False, due_date__isnull=True).count()}

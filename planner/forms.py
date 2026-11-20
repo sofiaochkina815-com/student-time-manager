@@ -1,6 +1,6 @@
 from django import forms
 from django.utils import timezone
-from .models import Task, TimeEntry, Subject, TaskCategory
+from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan
 
 
 class TaskForm(forms.ModelForm):
@@ -53,6 +53,13 @@ class TaskFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["subject"].queryset = Subject.objects.filter(owner=owner)
         self.fields["category"].queryset = TaskCategory.objects.filter(owner=owner)
+
+
+class WeekPlanForm(forms.ModelForm):
+    class Meta:
+        model = WeekPlan
+        fields = ["capacity_minutes", "note"]
+        widgets = {"note": forms.Textarea(attrs={"rows": 2})}
 
 
 class TimeEntryForm(forms.ModelForm):

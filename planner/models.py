@@ -71,3 +71,17 @@ class TimeEntry(models.Model):
     class Meta:
         ordering = ["-date", "-created_at"]
         constraints = [models.CheckConstraint(condition=models.Q(minutes__gte=1, minutes__lte=1440), name="entry_valid_minutes")]
+
+
+class WeekPlan(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    week_start = models.DateField("Начало недели")
+    capacity_minutes = models.PositiveIntegerField("Доступно минут на неделю", default=600, validators=[MaxValueValidator(10080)])
+    note = models.TextField("Заметка к плану", max_length=1000, blank=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["owner", "week_start"], name="week_plan_unique_owner_start")]
+
+    def clean(self):
+        if self.week_start and self.week_start.weekday() != 0:
+            raise ValidationError({"week_start": "Неделя должна начинаться с понедельника."})

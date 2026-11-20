@@ -66,3 +66,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "home"
 LOGOUT_REDIRECT_URL = "home"
+
+# Раздельные cookies позволяют пользоваться проектами на одном localhost.
+SESSION_COOKIE_NAME = "student_time_session"
+CSRF_COOKIE_NAME = "student_time_csrf"

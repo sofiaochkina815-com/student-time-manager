@@ -7,6 +7,7 @@ urlpatterns = [
     path("accounts/register/", views.register, name="register"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("tasks/", views.task_list, name="task_list"),
+    path("week/", views.weekly_plan, name="weekly_plan"),
     path("references/", views.references, name="references"),
     path("references/<str:kind>/new/", views.reference_edit, name="reference_create"),
     path("references/<str:kind>/<int:pk>/edit/", views.reference_edit, name="reference_edit"),

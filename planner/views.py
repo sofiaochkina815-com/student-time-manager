@@ -9,10 +9,12 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .forms import TaskForm, TimeEntryForm, SubjectForm, CategoryForm, TaskFilterForm
-from .models import Task, TimeEntry, Subject, TaskCategory
+from .forms import TaskForm, TimeEntryForm, SubjectForm, CategoryForm, TaskFilterForm, WeekPlanForm
+from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan
 from django.http import Http404
-from .services import record_time
+from .services import record_time, week_summary
+from datetime import timedelta
+from django.utils.dateparse import parse_date
 
 
 def home(request):
@@ -69,6 +71,7 @@ def task_list(request):
         links[value] = "?" + params.urlencode()
     params["state"] = state
     context.update({"tasks": page.object_list, "page": page, "filters": filters, "state_links": links, "page_query": params.urlencode()})
+    context["today"] = timezone.localdate()
     return render(request, "planner/tasks.html", context)
 
 
@@ -154,3 +157,20 @@ def reference_delete(request, kind, pk):
         messages.success(request, "Справочник удалён. Учебные задачи сохранены.")
         return redirect("references")
     return render(request, "planner/reference_delete.html", {"instance": instance})
+
+
+@login_required
+def weekly_plan(request):
+    try:
+        selected = parse_date(request.GET.get("week", "")) or timezone.localdate()
+    except ValueError:
+        selected = timezone.localdate()
+    start = selected - timedelta(days=selected.weekday())
+    instance = WeekPlan.objects.filter(owner=request.user, week_start=start).first() or WeekPlan(owner=request.user, week_start=start)
+    form = WeekPlanForm(request.POST if request.method == "POST" else None, instance=instance)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Бюджет учебного времени сохранён.")
+        return redirect(f"{request.path}?week={start.isoformat()}")
+    return render(request, "planner/week.html", {"form": form, "summary": week_summary(request.user, start),
+        "previous_week": (start-timedelta(days=7)).isoformat(), "next_week": (start+timedelta(days=7)).isoformat()})
