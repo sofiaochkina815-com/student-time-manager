@@ -2,12 +2,15 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import Sum
+from django.db.models import IntegerField, Sum, Value
+from django.db.models.functions import Coalesce
+from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .forms import TaskForm
-from .models import Task
+from .forms import TaskForm, TimeEntryForm
+from .models import Task, TimeEntry
+from .services import record_time
 
 
 def home(request):
@@ -35,10 +38,11 @@ def task_list(request):
         "active_count": active.count(), "done_count": tasks.filter(is_done=True).count(),
         "planned_minutes": active.aggregate(total=Sum("planned_minutes"))["total"] or 0,
         "state": state,
+        "actual_minutes": TimeEntry.objects.filter(task__owner=request.user).aggregate(total=Sum("minutes"))["total"] or 0,
     }
     if state != "all":
         tasks = tasks.filter(is_done=state == "done")
-    context["tasks"] = tasks
+    context["tasks"] = tasks.annotate(spent_minutes=Coalesce(Sum("time_entries__minutes"), Value(0), output_field=IntegerField()))
     return render(request, "planner/tasks.html", context)
 
 
@@ -73,3 +77,18 @@ def task_delete(request, pk):
         messages.success(request, "Задача удалена.")
         return redirect("task_list")
     return render(request, "planner/task_confirm_delete.html", {"task": task})
+
+
+@login_required
+def time_entry(request, pk):
+    task = get_object_or_404(Task, pk=pk, owner=request.user)
+    form = TimeEntryForm(request.POST if request.method == "POST" else None)
+    if request.method == "POST" and form.is_valid():
+        try:
+            record_time(user=request.user, task_id=task.pk, **form.cleaned_data)
+        except ValidationError as exc:
+            form.add_error(None, exc)
+        else:
+            messages.success(request, "Время записано.")
+            return redirect("task_list")
+    return render(request, "planner/time_entry.html", {"form": form, "task": task, "entries": task.time_entries.all()})

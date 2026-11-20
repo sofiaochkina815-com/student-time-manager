@@ -10,6 +10,7 @@
 <div class="card"><span>Открытых задач</span><strong>{{ active_count }}</strong></div>
 <div class="card"><span>План открытых задач</span><strong>{{ planned_minutes }} мин</strong></div>
 <div class="card"><span>Завершено</span><strong>{{ done_count }}</strong></div>
+<div class="card"><span>Записано времени всего</span><strong>{{ actual_minutes }} мин</strong></div>
 </section>
 <nav class="filter" aria-label="Фильтр задач">
 <a {% if state == 'active' %}class="active" aria-current="page"{% endif %} href="?state=active">В работе</a>
@@ -19,10 +20,11 @@
 <section class="task-list" aria-label="Учебные задачи">
 {% for task in tasks %}
 <article class="card task {% if task.is_done %}done{% endif %}">
-<div><h2>{{ task.title }}</h2><p>{{ task.get_priority_display }} приоритет · План: {{ task.planned_minutes }} мин{% if task.due_date %} · До {{ task.due_date|date:'d.m.Y' }}{% endif %}</p>{% if task.description %}<p>{{ task.description|linebreaksbr }}</p>{% endif %}</div>
+<div><h2>{{ task.title }}</h2><p>{{ task.get_priority_display }} приоритет · План: {{ task.planned_minutes }} мин · Факт: {{ task.spent_minutes }} мин{% if task.due_date %} · До {{ task.due_date|date:'d.m.Y' }}{% endif %}</p>{% if task.description %}<p>{{ task.description|linebreaksbr }}</p>{% endif %}</div>
 <div class="actions">
 <form method="post" action="{% url 'task_toggle' task.pk %}">{% csrf_token %}<button class="button secondary">{% if task.is_done %}Вернуть в план{% else %}Завершить{% endif %}</button></form>
 <a href="{% url 'task_edit' task.pk %}">Изменить</a><a href="{% url 'task_delete' task.pk %}">Удалить</a>
+<a href="{% url 'time_entry' task.pk %}">Записать время</a>
 </div></article>
 {% empty %}<div class="card empty"><h2>{% if state == 'done' %}Завершённых задач пока нет{% else %}Здесь появятся ваши задачи{% endif %}</h2><p>Добавьте задачу, укажите дедлайн и оцените время на выполнение.</p></div>{% endfor %}
 </section>

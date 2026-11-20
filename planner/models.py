@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.utils import timezone
 
 
 class Task(models.Model):
@@ -27,3 +28,15 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class TimeEntry(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="time_entries")
+    date = models.DateField("Дата работы", default=timezone.localdate)
+    minutes = models.PositiveIntegerField("Потрачено минут", validators=[MinValueValidator(1), MaxValueValidator(1440)])
+    note = models.CharField("Комментарий", max_length=500, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-date", "-created_at"]
+        constraints = [models.CheckConstraint(condition=models.Q(minutes__gte=1, minutes__lte=1440), name="entry_valid_minutes")]
