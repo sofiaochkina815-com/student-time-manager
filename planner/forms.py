@@ -43,6 +43,18 @@ class CategoryForm(ReferenceForm):
         fields = ["name", "description"]
 
 
+class TaskFilterForm(forms.Form):
+    q = forms.CharField(label="Поиск по задаче", required=False, max_length=200)
+    subject = forms.ModelChoiceField(label="Дисциплина", queryset=Subject.objects.none(), required=False, empty_label="Все дисциплины")
+    category = forms.ModelChoiceField(label="Категория", queryset=TaskCategory.objects.none(), required=False, empty_label="Все категории")
+    sort = forms.ChoiceField(label="Порядок", required=False, choices=[("priority", "По приоритету"), ("deadline", "По дедлайну"), ("newest", "Сначала новые")])
+
+    def __init__(self, *args, owner, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["subject"].queryset = Subject.objects.filter(owner=owner)
+        self.fields["category"].queryset = TaskCategory.objects.filter(owner=owner)
+
+
 class TimeEntryForm(forms.ModelForm):
     class Meta:
         model = TimeEntry

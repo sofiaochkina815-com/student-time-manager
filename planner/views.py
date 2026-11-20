@@ -2,13 +2,14 @@ from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from django.db.models import IntegerField, Sum, Value
+from django.db.models import F, Q, IntegerField, Sum, Value
+from django.core.paginator import Paginator
 from django.db.models.functions import Coalesce
 from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .forms import TaskForm, TimeEntryForm, SubjectForm, CategoryForm
+from .forms import TaskForm, TimeEntryForm, SubjectForm, CategoryForm, TaskFilterForm
 from .models import Task, TimeEntry, Subject, TaskCategory
 from django.http import Http404
 from .services import record_time
@@ -43,7 +44,31 @@ def task_list(request):
     }
     if state != "all":
         tasks = tasks.filter(is_done=state == "done")
-    context["tasks"] = tasks.select_related("subject", "category").annotate(spent_minutes=Coalesce(Sum("time_entries__minutes"), Value(0), output_field=IntegerField()))
+    filters = TaskFilterForm(request.GET, owner=request.user)
+    ordering = ["-priority", "created_at", "pk"]
+    if filters.is_valid():
+        data = filters.cleaned_data
+        if data["q"]:
+            tasks = tasks.filter(Q(title__icontains=data["q"]) | Q(description__icontains=data["q"]))
+        for field in ["subject", "category"]:
+            if data[field]:
+                tasks = tasks.filter(**{field: data[field]})
+        if data["sort"] == "deadline":
+            ordering = [F("due_date").asc(nulls_last=True), "-priority", "pk"]
+        elif data["sort"] == "newest":
+            ordering = ["-created_at", "-pk"]
+    else:
+        tasks = tasks.none()
+    tasks = tasks.select_related("subject", "category").annotate(spent_minutes=Coalesce(Sum("time_entries__minutes"), Value(0), output_field=IntegerField())).order_by(*ordering)
+    page = Paginator(tasks, 20).get_page(request.GET.get("page"))
+    params = request.GET.copy()
+    params.pop("page", None)
+    links = {}
+    for value in ["active", "done", "all"]:
+        params["state"] = value
+        links[value] = "?" + params.urlencode()
+    params["state"] = state
+    context.update({"tasks": page.object_list, "page": page, "filters": filters, "state_links": links, "page_query": params.urlencode()})
     return render(request, "planner/tasks.html", context)
 
 

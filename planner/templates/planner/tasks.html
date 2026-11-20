@@ -12,10 +12,13 @@
 <div class="card"><span>Завершено</span><strong>{{ done_count }}</strong></div>
 <div class="card"><span>Записано времени всего</span><strong>{{ actual_minutes }} мин</strong></div>
 </section>
+<form method="get" class="card task-filters" aria-label="Поиск и фильтры">
+<input type="hidden" name="state" value="{{ state }}">{{ filters.as_p }}<div class="actions"><button class="button">Применить</button><a href="{% url 'task_list' %}">Сбросить</a></div>
+</form>
 <nav class="filter" aria-label="Фильтр задач">
-<a {% if state == 'active' %}class="active" aria-current="page"{% endif %} href="?state=active">В работе</a>
-<a {% if state == 'done' %}class="active" aria-current="page"{% endif %} href="?state=done">Завершены</a>
-<a {% if state == 'all' %}class="active" aria-current="page"{% endif %} href="?state=all">Все задачи</a>
+<a {% if state == 'active' %}class="active" aria-current="page"{% endif %} href="{{ state_links.active }}">В работе</a>
+<a {% if state == 'done' %}class="active" aria-current="page"{% endif %} href="{{ state_links.done }}">Завершены</a>
+<a {% if state == 'all' %}class="active" aria-current="page"{% endif %} href="{{ state_links.all }}">Все задачи</a>
 </nav>
 <section class="task-list" aria-label="Учебные задачи">
 {% for task in tasks %}
@@ -28,4 +31,5 @@
 </div></article>
 {% empty %}<div class="card empty"><h2>{% if state == 'done' %}Завершённых задач пока нет{% else %}Здесь появятся ваши задачи{% endif %}</h2><p>Добавьте задачу, укажите дедлайн и оцените время на выполнение.</p></div>{% endfor %}
 </section>
+<nav class="actions" aria-label="Страницы задач">{% if page.has_previous %}<a href="?{{ page_query }}&page={{ page.previous_page_number }}">Предыдущая</a>{% endif %}<p>Найдено: {{ page.paginator.count }} · Страница {{ page.number }} из {{ page.paginator.num_pages }}</p>{% if page.has_next %}<a href="?{{ page_query }}&page={{ page.next_page_number }}">Следующая</a>{% endif %}</nav>
 {% endblock %}
