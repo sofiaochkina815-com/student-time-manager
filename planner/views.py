@@ -8,8 +8,9 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
-from .forms import TaskForm, TimeEntryForm
-from .models import Task, TimeEntry
+from .forms import TaskForm, TimeEntryForm, SubjectForm, CategoryForm
+from .models import Task, TimeEntry, Subject, TaskCategory
+from django.http import Http404
 from .services import record_time
 
 
@@ -42,14 +43,14 @@ def task_list(request):
     }
     if state != "all":
         tasks = tasks.filter(is_done=state == "done")
-    context["tasks"] = tasks.annotate(spent_minutes=Coalesce(Sum("time_entries__minutes"), Value(0), output_field=IntegerField()))
+    context["tasks"] = tasks.select_related("subject", "category").annotate(spent_minutes=Coalesce(Sum("time_entries__minutes"), Value(0), output_field=IntegerField()))
     return render(request, "planner/tasks.html", context)
 
 
 @login_required
 def task_edit(request, pk=None):
     task = get_object_or_404(Task, pk=pk, owner=request.user) if pk else None
-    form = TaskForm(request.POST if request.method == "POST" else None, instance=task)
+    form = TaskForm(request.POST if request.method == "POST" else None, instance=task, owner=request.user)
     if request.method == "POST" and form.is_valid():
         task = form.save(commit=False)
         task.owner = request.user
@@ -92,3 +93,39 @@ def time_entry(request, pk):
             messages.success(request, "Время записано.")
             return redirect("task_list")
     return render(request, "planner/time_entry.html", {"form": form, "task": task, "entries": task.time_entries.all()})
+
+
+@login_required
+def references(request):
+    return render(request, "planner/references.html", {"subjects": Subject.objects.filter(owner=request.user), "categories": TaskCategory.objects.filter(owner=request.user)})
+
+
+def reference_type(kind):
+    if kind == "subjects":
+        return Subject, SubjectForm, "Дисциплина"
+    if kind == "categories":
+        return TaskCategory, CategoryForm, "Категория"
+    raise Http404
+
+
+@login_required
+def reference_edit(request, kind, pk=None):
+    model, form_class, heading = reference_type(kind)
+    instance = get_object_or_404(model, pk=pk, owner=request.user) if pk else None
+    form = form_class(request.POST if request.method == "POST" else None, owner=request.user, instance=instance)
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        messages.success(request, "Справочник сохранён.")
+        return redirect("references")
+    return render(request, "planner/reference_form.html", {"form": form, "heading": heading})
+
+
+@login_required
+def reference_delete(request, kind, pk):
+    model, _, _ = reference_type(kind)
+    instance = get_object_or_404(model, pk=pk, owner=request.user)
+    if request.method == "POST":
+        instance.delete()
+        messages.success(request, "Справочник удалён. Учебные задачи сохранены.")
+        return redirect("references")
+    return render(request, "planner/reference_delete.html", {"instance": instance})
