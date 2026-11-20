@@ -2,7 +2,7 @@
 <div>
 <p class="eyebrow">МЕНЬШЕ СПЕШКИ. БОЛЬШЕ ЯСНОСТИ.</p>
 <h1>Учёба в своём<br>ритме.</h1>
-<p class="lead">Соберите учебные задачи в одном месте, оцените нагрузку и найдите время на главное.</p>{% if user.is_authenticated %}<p>Вы вошли как <strong>{{ user.username }}</strong>.</p>{% else %}<a class="button" href="{% url 'register' %}">Начать планировать</a>
+<p class="lead">Соберите учебные задачи в одном месте, оцените нагрузку и найдите время на главное.</p>{% if user.is_authenticated %}<a class="button" href="{% url 'task_list' %}">Открыть мой план</a><p>Вы вошли как <strong>{{ user.username }}</strong>.</p>{% else %}<a class="button" href="{% url 'register' %}">Начать планировать</a>
 <a class="inline-link" href="{% url 'login' %}">Уже есть аккаунт</a>{% endif %}</div>
 <aside class="intro-card">
 <span class="eyebrow">ВАШ ПЛАН</span>

@@ -1,0 +1,6 @@
+{% extends 'base.html' %}
+{% block crumb %}<a href="{% url 'task_list' %}">Мой план</a> / {% if task %}Редактирование{% else %}Новая задача{% endif %}{% endblock %}
+{% block content %}
+<section class="form-panel"><p class="eyebrow">ПЛАНИРУЕМ УЧЁБУ</p><h1>{% if task %}Изменить задачу{% else %}Новая задача{% endif %}</h1>
+<form method="post">{% csrf_token %}{{ form.as_p }}<div class="actions"><button class="button">Сохранить</button><a href="{% url 'task_list' %}">Отмена</a></div></form></section>
+{% endblock %}

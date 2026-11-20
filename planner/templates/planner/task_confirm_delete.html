@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block crumb %}<a href="{% url 'task_list' %}">Мой план</a> / Удаление{% endblock %}
+{% block content %}<section class="form-panel"><h1>Удалить задачу?</h1><p>«{{ task.title }}» будет удалена.</p><form method="post">{% csrf_token %}<div class="actions"><button class="button">Удалить задачу</button><a href="{% url 'task_list' %}">Отмена</a></div></form></section>{% endblock %}
