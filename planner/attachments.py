@@ -6,9 +6,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
 from django.db.models import Sum
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
-from django.http import FileResponse
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from .models import Task, TaskAttachment
 
@@ -47,13 +45,6 @@ class AttachmentForm(forms.ModelForm):
         return upload
 
 
-@receiver(post_delete, sender=TaskAttachment)
-def remove_attachment_file(sender, instance, **kwargs):
-    storage, name = instance.file.storage, instance.file.name
-    if name:
-        transaction.on_commit(lambda: storage.delete(name), robust=True)
-
-
 @login_required
 def attachment_list(request, pk):
     task = get_object_or_404(Task, pk=pk, owner=request.user)
@@ -84,7 +75,11 @@ def attachment_list(request, pk):
 @login_required
 def attachment_download(request, pk):
     item = get_object_or_404(TaskAttachment, pk=pk, owner=request.user, task__owner=request.user)
-    response = FileResponse(item.file.open("rb"), as_attachment=True, filename=item.original_name,
+    try:
+        handle = item.file.open("rb")
+    except OSError as exc:
+        raise Http404("Файл больше недоступен.") from exc
+    response = FileResponse(handle, as_attachment=True, filename=item.original_name,
         content_type="application/pdf" if item.kind == "pdf" else "text/plain; charset=utf-8")
     response["Cache-Control"] = "private, no-store"
     response["X-Content-Type-Options"] = "nosniff"
