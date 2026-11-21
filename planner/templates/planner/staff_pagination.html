@@ -1,0 +1,1 @@
+<nav class="actions" aria-label="Страницы администрирования">{% if page.has_previous %}<a href="?q={{ q|urlencode }}&amp;page={{ page.previous_page_number }}">Предыдущая</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="?q={{ q|urlencode }}&amp;page={{ page.next_page_number }}">Следующая</a>{% endif %}</nav>

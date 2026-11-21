@@ -10,6 +10,7 @@ from planner.exports import time_export, summary_export
 from planner.feedback import feedback, feedback_desk
 from planner.knowledge import public_page
 from planner import attachments
+from planner import staff
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -24,6 +25,13 @@ urlpatterns = [
     path("feedback/", feedback, name="feedback"),
     path("guide/<slug:slug>/", public_page, name="public_page"),
     path("cabinet/feedback/", feedback_desk, name="feedback_desk"),
+    path("cabinet/", staff.dashboard, name="staff_dashboard"),
+    path("cabinet/users/", staff.users, name="staff_users"),
+    path("cabinet/users/<int:pk>/toggle/", staff.user_toggle, name="staff_user_toggle"),
+    path("cabinet/groups/", staff.groups, name="staff_groups"),
+    path("cabinet/groups/<int:pk>/revoke/", staff.group_revoke_code, name="staff_group_revoke"),
+    path("cabinet/catalog/<str:kind>/", staff.catalog, name="staff_catalog"),
+    path("cabinet/time/", staff.time_audit, name="staff_time"),
     path("analytics/", analytics, name="analytics"),
     path("reports/time.csv", time_export, name="time_export"),
     path("reports/summary.csv", summary_export, name="summary_export"),

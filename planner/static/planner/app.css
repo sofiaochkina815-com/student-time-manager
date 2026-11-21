@@ -84,3 +84,5 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}.invite-code{overflow
 .study-day{display:grid;grid-template-columns:60px minmax(0,1fr);gap:16px;padding:14px 0;border-top:1px solid var(--line)}.study-day p{font-size:14px;margin:3px 0 8px}.study-bar{height:9px;border-radius:3px}.plan-bar{background:#597ca0}.actual-bar{background:var(--accent)}
 
 .guide-nav{max-width:1240px;margin:auto;padding:15px 40px;display:flex;flex-wrap:wrap;gap:8px 22px;border-bottom:1px solid var(--line);font-size:14px}.public-article{max-width:820px}.public-article .card{margin:20px 0}.public-article .lead{max-width:none}@media(max-width:800px){.guide-nav{padding:15px 20px;gap:9px 18px}}
+
+.staff-nav{display:flex;flex-wrap:wrap;gap:14px 25px;padding:22px;background:white;border:1px solid var(--line);border-radius:12px}
