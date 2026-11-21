@@ -187,3 +187,15 @@ class StudentProfile(models.Model):
     course = models.PositiveSmallIntegerField("Курс", default=1, validators=[MinValueValidator(1), MaxValueValidator(6)])
     default_session_minutes = models.PositiveSmallIntegerField("Обычная длительность занятия, минут", default=25, validators=[MinValueValidator(1), MaxValueValidator(240)])
     weekly_available_minutes = models.PositiveIntegerField("Обычный недельный бюджет, минут", default=600, validators=[MaxValueValidator(10080)])
+
+
+class Feedback(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    subject = models.CharField("Тема", max_length=150)
+    email = models.EmailField("Email для связи", blank=True)
+    message = models.TextField("Сообщение", max_length=3000)
+    status = models.CharField(max_length=10, default="open", choices=[("open", "Новое"), ("reviewed", "В работе"), ("closed", "Закрыто")])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]

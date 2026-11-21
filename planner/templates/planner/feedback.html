@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block crumb %}Обратная связь{% endblock %}{% block content %}<section class="form-panel"><h1>Обратная связь</h1><p>Расскажите о проблеме или предложении. Email необязателен; не указывайте в сообщении пароли.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button">Отправить обращение</button></form></section>{% endblock %}

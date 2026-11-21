@@ -7,6 +7,7 @@ from planner import sessions
 from planner.profile import profile_edit
 from planner.analytics import analytics
 from planner.exports import time_export, summary_export
+from planner.feedback import feedback, feedback_desk
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -15,6 +16,8 @@ urlpatterns = [
     path("tasks/", views.task_list, name="task_list"),
     path("week/", views.weekly_plan, name="weekly_plan"),
     path("profile/", profile_edit, name="profile_edit"),
+    path("feedback/", feedback, name="feedback"),
+    path("cabinet/feedback/", feedback_desk, name="feedback_desk"),
     path("analytics/", analytics, name="analytics"),
     path("reports/time.csv", time_export, name="time_export"),
     path("reports/summary.csv", summary_export, name="summary_export"),
