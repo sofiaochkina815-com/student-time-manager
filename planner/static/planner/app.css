@@ -80,3 +80,5 @@ input:focus,select:focus,textarea:focus{outline:3px solid #9bd5c5;outline-offset
 @media(max-width:800px){.header{align-items:flex-start;flex-direction:column}.header nav{flex-wrap:wrap;gap:12px 20px}}
 
 input[type=checkbox]{width:auto;accent-color:var(--accent)}.invite-code{overflow-wrap:anywhere;font-size:1rem}.header nav{flex-wrap:wrap}.header{gap:20px}
+
+.study-day{display:grid;grid-template-columns:60px minmax(0,1fr);gap:16px;padding:14px 0;border-top:1px solid var(--line)}.study-day p{font-size:14px;margin:3px 0 8px}.study-bar{height:9px;border-radius:3px}.plan-bar{background:#597ca0}.actual-bar{background:var(--accent)}
