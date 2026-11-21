@@ -34,7 +34,7 @@ TEMPLATES = [{
     "DIRS": [BASE_DIR / "templates"], "APP_DIRS": True,
     "OPTIONS": {"context_processors": [
         "django.template.context_processors.request", "django.contrib.auth.context_processors.auth",
-        "django.contrib.messages.context_processors.messages",
+        "django.contrib.messages.context_processors.messages", "planner.knowledge.public_context",
     ]},
 }]
 WSGI_APPLICATION = "config.wsgi.application"

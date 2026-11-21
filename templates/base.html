@@ -16,7 +16,7 @@
 <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="text-button">Выйти</button>
 </form>{% else %}<a href="{% url 'login' %}">Войти</a>
 <a class="button small" href="{% url 'register' %}">Создать аккаунт</a>{% endif %}</nav>
-</header>
+</header><nav class="guide-nav" aria-label="Руководство">{% for slug,item in public_pages.items %}<a href="{% url 'public_page' slug %}">{{ item.title }}</a>{% endfor %}</nav>
 <main class="container">
 <nav class="breadcrumbs" aria-label="Хлебные крошки">
 <a href="{% url 'home' %}">Такт</a>
