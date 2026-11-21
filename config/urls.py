@@ -11,6 +11,7 @@ from planner.feedback import feedback, feedback_desk
 from planner.knowledge import public_page
 from planner import attachments
 from planner import staff
+from planner.documents import study_pdf
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -34,6 +35,7 @@ urlpatterns = [
     path("cabinet/time/", staff.time_audit, name="staff_time"),
     path("analytics/", analytics, name="analytics"),
     path("reports/time.csv", time_export, name="time_export"),
+    path("reports/study.pdf", study_pdf, name="study_pdf"),
     path("reports/summary.csv", summary_export, name="summary_export"),
     path("sessions/", sessions.session_list, name="session_list"),
     path("sessions/new/", sessions.session_edit, name="session_create"),
