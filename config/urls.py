@@ -6,6 +6,7 @@ from planner import goals
 from planner import sessions
 from planner.profile import profile_edit
 from planner.analytics import analytics
+from planner.exports import time_export, summary_export
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -15,6 +16,8 @@ urlpatterns = [
     path("week/", views.weekly_plan, name="weekly_plan"),
     path("profile/", profile_edit, name="profile_edit"),
     path("analytics/", analytics, name="analytics"),
+    path("reports/time.csv", time_export, name="time_export"),
+    path("reports/summary.csv", summary_export, name="summary_export"),
     path("sessions/", sessions.session_list, name="session_list"),
     path("sessions/new/", sessions.session_edit, name="session_create"),
     path("sessions/<int:pk>/edit/", sessions.session_edit, name="session_edit"),
