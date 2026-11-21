@@ -3,6 +3,35 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+import secrets
+
+
+def group_invite_code():
+    return secrets.token_urlsafe(18)
+
+
+class StudyGroup(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="curated_groups")
+    name = models.CharField("Название группы", max_length=120)
+    description = models.TextField("Описание", max_length=1000, blank=True)
+    invite_code = models.CharField(max_length=32, unique=True, default=group_invite_code, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+
+class GroupMembership(models.Model):
+    group = models.ForeignKey(StudyGroup, on_delete=models.CASCADE, related_name="memberships")
+    student = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="study_memberships")
+    share_summary = models.BooleanField("Разрешить куратору видеть мои суммарные показатели", default=False)
+    joined_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["group", "student"], name="group_unique_student")]
 
 
 class NamedReference(models.Model):

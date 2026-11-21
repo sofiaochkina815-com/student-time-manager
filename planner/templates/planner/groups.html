@@ -1,0 +1,6 @@
+{% extends 'base.html' %}{% block crumb %}Учебные группы{% endblock %}{% block content %}
+<section class="page-heading"><div><p class="eyebrow">СОВМЕСТНАЯ УЧЁБА</p><h1>Учебные группы</h1></div><a class="button" href="{% url 'group_create' %}">Создать группу</a></section>
+<h2>Курирую</h2>{% for item in owned %}<p class="card"><a href="{% url 'group_detail' item.pk %}">{{ item.name }}</a></p>{% empty %}<p>Создайте группу, чтобы пригласить студентов.</p>{% endfor %}
+<h2>Участвую</h2>{% for item in memberships %}<p class="card"><a href="{% url 'group_detail' item.group_id %}">{{ item.group.name }}</a></p>{% empty %}<p>Вы ещё не присоединились к группам.</p>{% endfor %}
+<section class="form-panel"><h2>Вступить по коду</h2><form method="post" action="{% url 'group_join' %}">{% csrf_token %}{{ form.as_p }}<button class="button">Вступить</button></form></section>
+{% endblock %}

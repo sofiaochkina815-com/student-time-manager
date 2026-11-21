@@ -1,6 +1,19 @@
 from django import forms
 from django.utils import timezone
-from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan
+from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudyGroup
+
+
+class StudyGroupForm(forms.ModelForm):
+    class Meta:
+        model = StudyGroup
+        fields = ["name", "description"]
+        widgets = {"description": forms.Textarea(attrs={"rows": 3})}
+
+
+class JoinGroupForm(forms.Form):
+    code = forms.CharField(label="Код приглашения", max_length=32, strip=True)
+    share_summary = forms.BooleanField(label="Разрешить куратору видеть суммарные показатели", required=False,
+        help_text="Количество задач и минуты работы за текущий месяц. Названия задач и заметки не передаются.")
 
 
 class TaskForm(forms.ModelForm):
