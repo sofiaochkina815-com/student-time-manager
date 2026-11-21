@@ -1,6 +1,18 @@
 from django import forms
 from django.utils import timezone
-from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudyGroup
+from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudyGroup, StudyGoal
+
+
+class StudyGoalForm(forms.ModelForm):
+    class Meta:
+        model = StudyGoal
+        fields = ["title", "subject", "starts_on", "ends_on", "target_minutes", "is_archived"]
+        widgets = {field: forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}) for field in ["starts_on", "ends_on"]}
+
+    def __init__(self, *args, owner, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.owner = owner
+        self.fields["subject"].queryset = Subject.objects.filter(owner=owner)
 
 
 class StudyGroupForm(forms.ModelForm):

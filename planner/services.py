@@ -43,3 +43,16 @@ def week_summary(user, week_start):
             "difference": capacity-planned if capacity is not None else None,
             "task_count": tasks.count(), "completed_count": tasks.filter(is_done=True).count(),
             "undated_count": Task.objects.filter(owner=user, is_done=False, due_date__isnull=True).count()}
+
+
+def goal_progress(user, goal, today=None):
+    if goal.owner_id != user.pk:
+        raise PermissionDenied
+    today = today or timezone.localdate()
+    entries = TimeEntry.objects.filter(task__owner=user, date__range=(goal.starts_on, min(goal.ends_on, today)))
+    if goal.subject_id:
+        entries = entries.filter(task__subject_id=goal.subject_id)
+    actual = entries.aggregate(total=Sum("minutes"))["total"] or 0
+    return {"goal": goal, "actual": actual, "remaining": max(0, goal.target_minutes-actual),
+        "percentage": min(100, actual*100//goal.target_minutes), "reached": actual >= goal.target_minutes,
+        "overdue": today > goal.ends_on and actual < goal.target_minutes}

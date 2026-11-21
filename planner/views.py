@@ -6,6 +6,7 @@ from django.db.models import F, Q, IntegerField, Sum, Value
 from django.core.paginator import Paginator
 from django.db.models.functions import Coalesce
 from django.core.exceptions import ValidationError
+from django.db.models.deletion import ProtectedError
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -153,8 +154,12 @@ def reference_delete(request, kind, pk):
     model, _, _ = reference_type(kind)
     instance = get_object_or_404(model, pk=pk, owner=request.user)
     if request.method == "POST":
-        instance.delete()
-        messages.success(request, "Справочник удалён. Учебные задачи сохранены.")
+        try:
+            instance.delete()
+        except ProtectedError:
+            messages.error(request, "Дисциплина используется в учебной цели. Сначала измените или удалите цель.")
+        else:
+            messages.success(request, "Справочник удалён. Учебные задачи сохранены.")
         return redirect("references")
     return render(request, "planner/reference_delete.html", {"instance": instance})
 

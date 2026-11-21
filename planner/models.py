@@ -114,3 +114,27 @@ class WeekPlan(models.Model):
     def clean(self):
         if self.week_start and self.week_start.weekday() != 0:
             raise ValidationError({"week_start": "Неделя должна начинаться с понедельника."})
+
+
+class StudyGoal(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField("Учебная цель", max_length=200)
+    subject = models.ForeignKey(Subject, verbose_name="Дисциплина", on_delete=models.PROTECT, null=True, blank=True)
+    starts_on = models.DateField("Начало", default=timezone.localdate)
+    ends_on = models.DateField("Срок")
+    target_minutes = models.PositiveIntegerField("Целевое время, минут", validators=[MinValueValidator(1), MaxValueValidator(525600)])
+    is_archived = models.BooleanField("В архиве", default=False)
+
+    class Meta:
+        ordering = ["is_archived", "ends_on", "pk"]
+        constraints = [models.CheckConstraint(condition=models.Q(target_minutes__gt=0), name="goal_positive_target"),
+                       models.CheckConstraint(condition=models.Q(ends_on__gte=models.F("starts_on")), name="goal_valid_period")]
+
+    def clean(self):
+        if self.subject_id and not Subject.objects.filter(pk=self.subject_id, owner_id=self.owner_id).exists():
+            raise ValidationError({"subject": "Выберите собственную дисциплину."})
+        if self.starts_on and self.ends_on and not 0 <= (self.ends_on-self.starts_on).days <= 366:
+            raise ValidationError({"ends_on": "Укажите период от одного до 367 дней."})
+
+    def __str__(self):
+        return self.title

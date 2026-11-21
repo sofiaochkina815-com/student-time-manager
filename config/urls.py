@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import include, path
 from planner import views
 from planner import groups
+from planner import goals
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -9,6 +10,10 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("tasks/", views.task_list, name="task_list"),
     path("week/", views.weekly_plan, name="weekly_plan"),
+    path("goals/", goals.goal_list, name="goal_list"),
+    path("goals/new/", goals.goal_edit, name="goal_create"),
+    path("goals/<int:pk>/edit/", goals.goal_edit, name="goal_edit"),
+    path("goals/<int:pk>/delete/", goals.goal_delete, name="goal_delete"),
     path("groups/", groups.group_list, name="group_list"),
     path("groups/new/", groups.group_create, name="group_create"),
     path("groups/join/", groups.group_join, name="group_join"),

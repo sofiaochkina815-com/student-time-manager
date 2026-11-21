@@ -38,7 +38,7 @@ def group_create(request):
         group.owner = request.user
         group.save()
         return redirect("group_detail", pk=group.pk)
-    return render(request, "planner/reference_form.html", {"form": form, "heading": "Новая учебная группа"})
+    return render(request, "planner/reference_form.html", {"form": form, "heading": "Новая учебная группа", "return_name": "group_list", "section_label": "Группы"})
 
 
 @login_required
