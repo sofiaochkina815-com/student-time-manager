@@ -1,6 +1,23 @@
 from django import forms
 from django.utils import timezone
-from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudyGroup, StudyGoal
+from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudyGroup, StudyGoal, StudySession
+
+
+class StudySessionForm(forms.ModelForm):
+    class Meta:
+        model = StudySession
+        fields = ["task", "starts_at", "planned_minutes"]
+        widgets = {"starts_at": forms.DateTimeInput(format="%Y-%m-%dT%H:%M", attrs={"type": "datetime-local"})}
+
+    def __init__(self, *args, owner, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.instance.owner = owner
+        self.fields["task"].queryset = Task.objects.filter(owner=owner)
+
+
+class SessionCompletionForm(forms.Form):
+    minutes = forms.IntegerField(label="Фактически потрачено минут", min_value=1, max_value=1440)
+    note = forms.CharField(label="Заметка", max_length=500, required=False)
 
 
 class StudyGoalForm(forms.ModelForm):

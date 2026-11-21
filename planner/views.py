@@ -103,8 +103,12 @@ def task_toggle(request, pk):
 def task_delete(request, pk):
     task = get_object_or_404(Task, pk=pk, owner=request.user)
     if request.method == "POST":
-        task.delete()
-        messages.success(request, "Задача удалена.")
+        try:
+            task.delete()
+        except ProtectedError:
+            messages.error(request, "С задачей связаны учебные сессии. Сохраните историю, отметив задачу завершённой.")
+        else:
+            messages.success(request, "Задача удалена.")
         return redirect("task_list")
     return render(request, "planner/task_confirm_delete.html", {"task": task})
 

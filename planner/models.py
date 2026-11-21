@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 import secrets
+from datetime import timedelta
 
 
 def group_invite_code():
@@ -138,3 +139,42 @@ class StudyGoal(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class StudySession(models.Model):
+    class Status(models.TextChoices):
+        PLANNED = "planned", "Запланирована"
+        COMPLETED = "completed", "Завершена"
+        CANCELLED = "cancelled", "Отменена"
+
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, verbose_name="Задача", on_delete=models.PROTECT, related_name="study_sessions")
+    starts_at = models.DateTimeField("Начало занятия")
+    planned_minutes = models.PositiveSmallIntegerField("Длительность, минут", default=25, validators=[MinValueValidator(1), MaxValueValidator(240)])
+    status = models.CharField(max_length=10, choices=Status.choices, default=Status.PLANNED)
+    time_entry = models.OneToOneField(TimeEntry, on_delete=models.PROTECT, null=True, blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["starts_at", "pk"]
+        constraints = [models.CheckConstraint(condition=models.Q(planned_minutes__gte=1, planned_minutes__lte=240), name="session_valid_plan"),
+            models.CheckConstraint(condition=(models.Q(status="completed", time_entry__isnull=False, completed_at__isnull=False)
+                | models.Q(status__in=["planned", "cancelled"], time_entry__isnull=True, completed_at__isnull=True)), name="session_completion_consistent")]
+
+    @property
+    def ends_at(self):
+        return self.starts_at + timedelta(minutes=self.planned_minutes)
+
+    def clean(self):
+        if self.task_id and not Task.objects.filter(pk=self.task_id, owner_id=self.owner_id).exists():
+            raise ValidationError({"task": "Выберите собственную задачу."})
+        if self.starts_at and self.planned_minutes and self.status != self.Status.CANCELLED:
+            try:
+                earliest = self.starts_at - timedelta(minutes=240)
+                end = self.ends_at
+            except OverflowError as exc:
+                raise ValidationError({"starts_at": "Дата выходит за допустимый календарь."}) from exc
+            candidates = StudySession.objects.filter(owner_id=self.owner_id, starts_at__gte=earliest, starts_at__lt=end)
+            candidates = candidates.exclude(pk=self.pk).exclude(status=self.Status.CANCELLED)
+            if any(item.ends_at > self.starts_at for item in candidates):
+                raise ValidationError({"starts_at": "В это время уже запланировано другое занятие."})

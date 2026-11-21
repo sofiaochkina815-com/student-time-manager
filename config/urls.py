@@ -3,6 +3,7 @@ from django.urls import include, path
 from planner import views
 from planner import groups
 from planner import goals
+from planner import sessions
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -10,6 +11,11 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("tasks/", views.task_list, name="task_list"),
     path("week/", views.weekly_plan, name="weekly_plan"),
+    path("sessions/", sessions.session_list, name="session_list"),
+    path("sessions/new/", sessions.session_edit, name="session_create"),
+    path("sessions/<int:pk>/edit/", sessions.session_edit, name="session_edit"),
+    path("sessions/<int:pk>/finish/", sessions.session_finish, name="session_finish"),
+    path("sessions/<int:pk>/cancel/", sessions.session_cancel, name="session_cancel"),
     path("goals/", goals.goal_list, name="goal_list"),
     path("goals/new/", goals.goal_edit, name="goal_create"),
     path("goals/<int:pk>/edit/", goals.goal_edit, name="goal_edit"),
