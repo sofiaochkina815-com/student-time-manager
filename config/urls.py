@@ -9,12 +9,16 @@ from planner.analytics import analytics
 from planner.exports import time_export, summary_export
 from planner.feedback import feedback, feedback_desk
 from planner.knowledge import public_page
+from planner import attachments
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/register/", views.register, name="register"),
     path("accounts/", include("django.contrib.auth.urls")),
     path("tasks/", views.task_list, name="task_list"),
+    path("tasks/<int:pk>/files/", attachments.attachment_list, name="attachment_list"),
+    path("files/<int:pk>/download/", attachments.attachment_download, name="attachment_download"),
+    path("files/<int:pk>/delete/", attachments.attachment_delete, name="attachment_delete"),
     path("week/", views.weekly_plan, name="weekly_plan"),
     path("profile/", profile_edit, name="profile_edit"),
     path("feedback/", feedback, name="feedback"),

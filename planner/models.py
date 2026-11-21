@@ -4,6 +4,8 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 import secrets
+import uuid
+from pathlib import Path
 from datetime import timedelta
 
 
@@ -199,3 +201,27 @@ class Feedback(models.Model):
 
     class Meta:
         ordering = ["-created_at", "-pk"]
+
+
+def attachment_path(instance, filename):
+    return f"attachments/{instance.owner_id}/{uuid.uuid4().hex}{Path(filename).suffix.lower()}"
+
+
+class TaskAttachment(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="attachments")
+    file = models.FileField("PDF или текстовый файл", upload_to=attachment_path)
+    original_name = models.CharField(max_length=150)
+    size = models.PositiveIntegerField()
+    sha256 = models.CharField(max_length=64)
+    kind = models.CharField(max_length=3, choices=[("pdf", "PDF"), ("txt", "Текст UTF-8")])
+    note = models.CharField("Описание", max_length=300, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+        constraints = [models.UniqueConstraint(fields=["owner", "task", "sha256"], name="attachment_unique_task_content")]
+
+    def clean(self):
+        if self.task_id and not Task.objects.filter(pk=self.task_id, owner_id=self.owner_id).exists():
+            raise ValidationError("Вложение должно принадлежать владельцу задачи.")

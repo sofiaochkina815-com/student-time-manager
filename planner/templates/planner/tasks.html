@@ -26,7 +26,7 @@
 <div><h2>{{ task.title }}</h2>{% if task.due_date and task.due_date < today and not task.is_done %}<span class="badge">Срок прошёл</span>{% endif %}{% if task.subject %}<span class="badge">{{ task.subject }}</span>{% endif %}{% if task.category %}<span class="badge">{{ task.category }}</span>{% endif %}<p>{{ task.get_priority_display }} приоритет · План: {{ task.planned_minutes }} мин · Факт: {{ task.spent_minutes }} мин{% if task.due_date %} · До {{ task.due_date|date:'d.m.Y' }}{% endif %}</p>{% if task.description %}<p>{{ task.description|linebreaksbr }}</p>{% endif %}</div>
 <div class="actions">
 <form method="post" action="{% url 'task_toggle' task.pk %}">{% csrf_token %}<button class="button secondary">{% if task.is_done %}Вернуть в план{% else %}Завершить{% endif %}</button></form>
-<a href="{% url 'task_edit' task.pk %}">Изменить</a><a href="{% url 'task_delete' task.pk %}">Удалить</a>
+<a href="{% url 'attachment_list' task.pk %}">Материалы</a><a href="{% url 'task_edit' task.pk %}">Изменить</a><a href="{% url 'task_delete' task.pk %}">Удалить</a>
 <a href="{% url 'time_entry' task.pk %}">Записать время</a>
 </div></article>
 {% empty %}<div class="card empty"><h2>{% if state == 'done' %}Завершённых задач пока нет{% else %}Здесь появятся ваши задачи{% endif %}</h2><p>Добавьте задачу, укажите дедлайн и оцените время на выполнение.</p></div>{% endfor %}
