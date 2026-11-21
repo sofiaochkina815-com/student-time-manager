@@ -4,6 +4,7 @@ from planner import views
 from planner import groups
 from planner import goals
 from planner import sessions
+from planner.profile import profile_edit
 
 urlpatterns = [
     path("admin/", admin.site.urls),
@@ -11,6 +12,7 @@ urlpatterns = [
     path("accounts/", include("django.contrib.auth.urls")),
     path("tasks/", views.task_list, name="task_list"),
     path("week/", views.weekly_plan, name="weekly_plan"),
+    path("profile/", profile_edit, name="profile_edit"),
     path("sessions/", sessions.session_list, name="session_list"),
     path("sessions/new/", sessions.session_edit, name="session_create"),
     path("sessions/<int:pk>/edit/", sessions.session_edit, name="session_edit"),

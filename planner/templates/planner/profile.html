@@ -1,0 +1,1 @@
+{% extends 'base.html' %}{% block crumb %}Мой профиль{% endblock %}{% block content %}<section class="form-panel"><h1>Мой профиль</h1><p>Настройки используются для новых занятий и недель. Сохранённые планы не изменятся.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button">Сохранить</button></form></section>{% endblock %}

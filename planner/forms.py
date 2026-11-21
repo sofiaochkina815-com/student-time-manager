@@ -1,6 +1,6 @@
 from django import forms
 from django.utils import timezone
-from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudyGroup, StudyGoal, StudySession
+from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudyGroup, StudyGoal, StudySession, StudentProfile
 
 
 class StudySessionForm(forms.ModelForm):
@@ -13,6 +13,10 @@ class StudySessionForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.instance.owner = owner
         self.fields["task"].queryset = Task.objects.filter(owner=owner)
+        if not self.instance.pk and not self.is_bound:
+            profile = StudentProfile.objects.filter(user=owner).first()
+            if profile:
+                self.initial["planned_minutes"] = profile.default_session_minutes
 
 
 class SessionCompletionForm(forms.Form):

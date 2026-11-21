@@ -178,3 +178,12 @@ class StudySession(models.Model):
             candidates = candidates.exclude(pk=self.pk).exclude(status=self.Status.CANCELLED)
             if any(item.ends_at > self.starts_at for item in candidates):
                 raise ValidationError({"starts_at": "В это время уже запланировано другое занятие."})
+
+
+class StudentProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="time_profile")
+    display_name = models.CharField("Как к вам обращаться", max_length=120, blank=True)
+    study_program = models.CharField("Образовательная программа", max_length=120, blank=True)
+    course = models.PositiveSmallIntegerField("Курс", default=1, validators=[MinValueValidator(1), MaxValueValidator(6)])
+    default_session_minutes = models.PositiveSmallIntegerField("Обычная длительность занятия, минут", default=25, validators=[MinValueValidator(1), MaxValueValidator(240)])
+    weekly_available_minutes = models.PositiveIntegerField("Обычный недельный бюджет, минут", default=600, validators=[MaxValueValidator(10080)])

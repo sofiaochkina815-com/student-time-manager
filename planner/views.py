@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from .forms import TaskForm, TimeEntryForm, SubjectForm, CategoryForm, TaskFilterForm, WeekPlanForm
-from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan
+from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudentProfile
 from django.http import Http404
 from .services import record_time, week_summary
 from datetime import timedelta
@@ -175,7 +175,10 @@ def weekly_plan(request):
     except ValueError:
         selected = timezone.localdate()
     start = selected - timedelta(days=selected.weekday())
-    instance = WeekPlan.objects.filter(owner=request.user, week_start=start).first() or WeekPlan(owner=request.user, week_start=start)
+    instance = WeekPlan.objects.filter(owner=request.user, week_start=start).first()
+    if instance is None:
+        profile = StudentProfile.objects.filter(user=request.user).first()
+        instance = WeekPlan(owner=request.user, week_start=start, capacity_minutes=profile.weekly_available_minutes if profile else 600)
     form = WeekPlanForm(request.POST if request.method == "POST" else None, instance=instance)
     if request.method == "POST" and form.is_valid():
         form.save()
