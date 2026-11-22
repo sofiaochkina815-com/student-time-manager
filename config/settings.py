@@ -2,7 +2,6 @@
 import os
 import secrets
 from pathlib import Path
-from urllib.parse import unquote, urlparse
 from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -40,15 +39,11 @@ TEMPLATES = [{
 WSGI_APPLICATION = "config.wsgi.application"
 database_url = os.getenv("DATABASE_URL", "")
 if database_url:
-    db = urlparse(database_url)
-    if db.scheme not in {"postgres", "postgresql"}:
-        raise ImproperlyConfigured("DATABASE_URL должен указывать на PostgreSQL")
-    DATABASES = {"default": {
-        "ENGINE": "django.db.backends.postgresql", "NAME": unquote(db.path.lstrip("/")),
-        "USER": unquote(db.username or ""), "PASSWORD": unquote(db.password or ""),
-        "HOST": db.hostname or "localhost", "PORT": db.port or 5432,
-    }}
+    from .database import postgres_database
+    DATABASES = {"default": postgres_database(database_url)}
 else:
+    if not DEBUG:
+        raise ImproperlyConfigured("Для публикации укажите DATABASE_URL PostgreSQL")
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3"}}
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

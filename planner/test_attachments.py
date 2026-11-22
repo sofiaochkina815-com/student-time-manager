@@ -2,12 +2,12 @@ import tempfile
 from pathlib import Path
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import TestCase, override_settings
+from django.test import TransactionTestCase, override_settings
 from django.urls import reverse
 from .models import Task, TaskAttachment
 
 
-class AttachmentTests(TestCase):
+class AttachmentTests(TransactionTestCase):
     def setUp(self):
         self.folder = tempfile.TemporaryDirectory()
         self.settings_override = override_settings(MEDIA_ROOT=self.folder.name)
@@ -31,8 +31,7 @@ class AttachmentTests(TestCase):
         self.client.force_login(self.user)
         self.client.get(reverse("attachment_delete", args=[item.pk]))
         self.assertTrue(path.exists())
-        with self.captureOnCommitCallbacks(execute=True):
-            self.client.post(reverse("attachment_delete", args=[item.pk]))
+        self.client.post(reverse("attachment_delete", args=[item.pk]))
         self.assertFalse(path.exists())
 
     def test_wrong_formats_and_duplicates_do_not_create_extra_files(self):
