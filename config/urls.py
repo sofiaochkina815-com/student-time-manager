@@ -13,7 +13,11 @@ from planner import attachments
 from planner import staff
 from planner.documents import study_pdf
 
+from config.health import live, ready
+
 urlpatterns = [
+    path("health/live/", live, name="health_live"),
+    path("health/ready/", ready, name="health_ready"),
     path("admin/", admin.site.urls),
     path("accounts/register/", views.register, name="register"),
     path("accounts/", include("django.contrib.auth.urls")),
