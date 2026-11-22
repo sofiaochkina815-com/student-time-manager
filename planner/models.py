@@ -225,3 +225,9 @@ class TaskAttachment(models.Model):
     def clean(self):
         if self.task_id and not Task.objects.filter(pk=self.task_id, owner_id=self.owner_id).exists():
             raise ValidationError("Вложение должно принадлежать владельцу задачи.")
+
+
+class DemoDataset(models.Model):
+    owner = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    reference_date = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
