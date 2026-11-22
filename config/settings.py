@@ -66,3 +66,11 @@ LOGOUT_REDIRECT_URL = "home"
 # Раздельные cookies позволяют пользоваться проектами на одном localhost.
 SESSION_COOKIE_NAME = "student_time_session"
 CSRF_COOKIE_NAME = "student_time_csrf"
+
+PRIVATE_FILE_STORAGE = os.getenv("PRIVATE_FILE_STORAGE", "filesystem")
+if PRIVATE_FILE_STORAGE not in {"filesystem", "database"}:
+    raise ImproperlyConfigured("PRIVATE_FILE_STORAGE должен быть filesystem или database")
+STORAGES = {
+    "default": {"BACKEND": "planner.storage.DatabasePrivateStorage" if PRIVATE_FILE_STORAGE == "database" else "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+}

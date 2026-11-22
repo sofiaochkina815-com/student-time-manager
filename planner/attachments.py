@@ -61,7 +61,8 @@ def attachment_list(request, pk):
                 form.add_error("file", "Этот файл уже прикреплён к задаче.")
             else:
                 try:
-                    instance.save()
+                    with transaction.atomic():
+                        instance.save()
                 except BaseException:
                     if instance.file.name and instance.file._committed:
                         instance.file.storage.delete(instance.file.name)

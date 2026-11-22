@@ -231,3 +231,10 @@ class DemoDataset(models.Model):
     owner = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     reference_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class PrivateFileBlob(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    content = models.BinaryField()
+    size = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
