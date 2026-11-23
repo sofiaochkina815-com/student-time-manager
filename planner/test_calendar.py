@@ -36,3 +36,12 @@ class CalendarTests(TestCase):
         result=month_data(self.user,date(2028,2,1))
         self.assertEqual(sum(day is not None for week in result['weeks'] for day in week),29)
         self.assertEqual(result['next'],date(2028,3,1))
+
+    def test_subminute_parts_preserve_planned_duration_across_midnight(self):
+        from decimal import Decimal
+        task=Task.objects.create(owner=self.user,title='Короткое занятие')
+        StudySession.objects.create(owner=self.user,task=task,starts_at=datetime(2026,11,30,19,59,45,tzinfo=dt_timezone.utc),planned_minutes=1)
+        with timezone.override('Asia/Tbilisi'):
+            reports=[month_data(self.user,date(2026,11,1)),month_data(self.user,date(2026,12,1))]
+        parts=[item['minutes'] for report in reports for week in report['weeks'] for day in week if day for item in day['sessions']]
+        self.assertEqual(parts,[Decimal('.25'),Decimal('.75')]);self.assertEqual(sum(parts),Decimal(1))

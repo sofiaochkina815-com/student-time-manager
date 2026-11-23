@@ -1,5 +1,6 @@
 """Личный месячный календарь: текущие дедлайны, сессии и фактическое время."""
 import calendar
+from decimal import Decimal
 from datetime import datetime, time, timedelta, timezone as dt_timezone
 from django import forms
 from django.contrib.auth.decorators import login_required
@@ -40,8 +41,10 @@ def month_data(user, start):
         while cursor<=final:
             left=max(session.starts_at,boundary(cursor));right=min(session.ends_at,boundary(cursor+timedelta(days=1)))
             if right>left:
+                duration=right-left
+                microseconds=(duration.days*86400+duration.seconds)*1_000_000+duration.microseconds
                 days[cursor]['sessions'].append({'session':session,'starts_at':left,'ends_at':right,
-                    'minutes':int((right-left).total_seconds()//60)})
+                    'minutes':Decimal(microseconds)/Decimal(60_000_000)})
             cursor+=timedelta(days=1)
     weeks=[[days.get(day) for day in week] for week in calendar.Calendar(0).monthdatescalendar(start.year,start.month)]
     return {'month':start,'weeks':weeks,'truncated':truncated,

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_head": "7ce068849a806d8e7e7033bb736a95e071543dba",
+  "source_head": "3234e73dd0b5862bc0f812231da0caeba0eafd66",
   "code_counts": [
     {
       "file": "config/__init__.py",
@@ -83,8 +83,8 @@
     {
       "file": "planner/calendar_view.py",
       "metric": "python_ast_statements",
-      "count": 46,
-      "sha256": "7d4031bbc266dcf32863e9150e1c9b5bf2748537a4c6512486dd2ad64551c7b1"
+      "count": 49,
+      "sha256": "310d0d22d6861ff4e571188fec8252c23eaa5daecef31d01491da74895370f09"
     },
     {
       "file": "planner/demo.py",
@@ -246,7 +246,7 @@
       "file": "planner/templates/planner/calendar.html",
       "metric": "nonempty_markup_style_lines",
       "count": 11,
-      "sha256": "e529774e410587b6d60b19333937259853b8ee828d138f2680cd7d941af272e0"
+      "sha256": "86b8cc036d55197335ec66d097fbf6046a3c76eb30bd28d032a069553c53cd1a"
     },
     {
       "file": "planner/templates/planner/comparison.html",
@@ -453,7 +453,7 @@
       "sha256": "188184357e33fdc21e2b7748d2bd1759e50110f12adbaa882959422d1f59a54f"
     }
   ],
-  "mixed_code_units": 1733,
+  "mixed_code_units": 1736,
   "method": "Python AST statements excluding docstrings/tests/migrations; HTML/CSS nonempty lines excluding comments. Different units are reported separately; not a standardized logical-line certification.",
   "application_models": [
     {
