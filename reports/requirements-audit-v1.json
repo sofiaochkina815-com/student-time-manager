@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_head": "df89eae8b06f48c2d219634c55495b77e38d581b",
+  "source_head": "67fe1960c3d8c4dc84500bc49b34d8bee31d9cc9",
   "code_counts": [
     {
       "file": "config/__init__.py",
@@ -408,7 +408,7 @@
       "file": "planner/templates/planner/tasks.html",
       "metric": "nonempty_markup_style_lines",
       "count": 35,
-      "sha256": "a4222a60f3c6f155210e39f72669503c732b8090f318ea662e245930f8a2b9d8"
+      "sha256": "015c6f123996cde041a7e048390a20c3ab30c2e708a774041288c8f4439e3c95"
     },
     {
       "file": "planner/templates/planner/time_delete.html",

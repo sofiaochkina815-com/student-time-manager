@@ -4,7 +4,7 @@
 {% block content %}
 <section class="page-heading">
 <div><p class="eyebrow">ВАШЕ УЧЕБНОЕ ПРОСТРАНСТВО</p><h1>Мой план</h1><p class="muted">{{ user.username }}, начните с одной важной задачи.</p></div>
-<a class="button" href="{% url 'task_create' %}">Добавить задачу</a>
+<div class="actions"><a class="button" href="{% url 'task_create' %}">Добавить задачу</a><a href="{% url 'task_history' %}">История статусов задач</a></div>
 </section>
 <section class="stats" aria-label="Сводка задач">
 <div class="card"><span>Открытых задач</span><strong>{{ active_count }}</strong></div>

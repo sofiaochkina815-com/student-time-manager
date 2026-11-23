@@ -105,7 +105,8 @@ def verify(app_python, output):
                     item.get_by_role('button',name='Вернуть в план',exact=True).click();page.wait_for_url('**/tasks/')
                     stale=context.request.post(url+f'/tasks/{task_id}/toggle/',form=old_state,headers={'Referer':url+'/tasks/'})
                     assert stale.status==200 and 'Статус уже изменился' in stale.text()
-                    visit('/tasks/history/')
+                    visit('/tasks/')
+                    page.get_by_role('link',name='История статусов задач',exact=True).click();page.wait_for_url('**/tasks/history/')
                     assert page.get_by_role('heading',name='Браузерная учебная задача',exact=True).count()==2
                     shot('history-desktop.png');checks.append('state_history_and_stale_form')
                     visit('/analytics/');shot('analytics-desktop.png')
