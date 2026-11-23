@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_head": "3234e73dd0b5862bc0f812231da0caeba0eafd66",
+  "source_head": "df89eae8b06f48c2d219634c55495b77e38d581b",
   "code_counts": [
     {
       "file": "config/__init__.py",
@@ -35,8 +35,8 @@
     {
       "file": "config/urls.py",
       "metric": "python_ast_statements",
-      "count": 20,
-      "sha256": "4777e0aa1b08abd7a3c4d5ba6798d2776a72b16472a4153ff79508a1ea024bdf"
+      "count": 22,
+      "sha256": "5e99ba8b1735ac2ed1ff35b0a9aad765817da24313c57aaf5ef275805e5c3a2a"
     },
     {
       "file": "config/wsgi.py",
@@ -119,8 +119,8 @@
     {
       "file": "planner/forms.py",
       "metric": "python_ast_statements",
-      "count": 87,
-      "sha256": "253ce4cffcb5e069841c168f4b7a325b5e15933319cc7252d985ab52a7609410"
+      "count": 89,
+      "sha256": "c42c3caf508c99db5ddb053dfbd0b8a8c83f3f7484ab66c88f3013e4cc81849f"
     },
     {
       "file": "planner/goals.py",
@@ -173,8 +173,8 @@
     {
       "file": "planner/models.py",
       "metric": "python_ast_statements",
-      "count": 176,
-      "sha256": "40adb2d55b9e3b49aabb659373083662af6907b1cee1dcc69ce025d4652ab1a8"
+      "count": 195,
+      "sha256": "347e98852220374247c4309276a5de15f90ee4d291687c0a2469b11307ef0b1a"
     },
     {
       "file": "planner/profile.py",
@@ -191,8 +191,8 @@
     {
       "file": "planner/services.py",
       "metric": "python_ast_statements",
-      "count": 65,
-      "sha256": "852157e0c994bc71ba0892612009efb677b540043776ad05fb1841f77136ffe2"
+      "count": 78,
+      "sha256": "ffe7f3967659f31feef10efc47e85ef8e7b4d16f228e0aa33686a6a2be68ddfe"
     },
     {
       "file": "planner/sessions.py",
@@ -223,6 +223,12 @@
       "metric": "python_ast_statements",
       "count": 33,
       "sha256": "3fe804998008366632f09357c612ff94aa850c10ee68b0d03216d13584a402bd"
+    },
+    {
+      "file": "planner/task_history.py",
+      "metric": "python_ast_statements",
+      "count": 31,
+      "sha256": "8cde955a59662752829763ee86300764cab0c5a11871c45a0ad9e115ba2e0ac9"
     },
     {
       "file": "planner/templates/planner/analytics.html",
@@ -393,10 +399,16 @@
       "sha256": "cc1fcd41ac44e5c149c7969adc444cf60d8791564cb7f942ad5de14f546bc4e4"
     },
     {
+      "file": "planner/templates/planner/task_history.html",
+      "metric": "nonempty_markup_style_lines",
+      "count": 8,
+      "sha256": "4a3e296f31b9a8f9bc3ef930ba2228112e367b4a4fb546bc48cee1235f915231"
+    },
+    {
       "file": "planner/templates/planner/tasks.html",
       "metric": "nonempty_markup_style_lines",
       "count": 35,
-      "sha256": "6200bfca1ce6304a47bd5c89c07c11df6b55a305ab490c0df9be9ee39df48280"
+      "sha256": "a4222a60f3c6f155210e39f72669503c732b8090f318ea662e245930f8a2b9d8"
     },
     {
       "file": "planner/templates/planner/time_delete.html",
@@ -420,7 +432,13 @@
       "file": "planner/templates/planner/week.html",
       "metric": "nonempty_markup_style_lines",
       "count": 7,
-      "sha256": "92498dc045583d9255b98381395aadb9e1aa36de003c54364441a19a97188644"
+      "sha256": "e7dc1a36112e403991e1bb059d6a21e02c2840dbeee43cb0f37dd4c4c420e565"
+    },
+    {
+      "file": "planner/templates/planner/workload.html",
+      "metric": "nonempty_markup_style_lines",
+      "count": 11,
+      "sha256": "c9375e33cc83a400a66a3915f8e36c900c3f3ef75b61bbd3ab55ddf172e4f5ae"
     },
     {
       "file": "planner/time_corrections.py",
@@ -431,8 +449,14 @@
     {
       "file": "planner/views.py",
       "metric": "python_ast_statements",
-      "count": 140,
-      "sha256": "1b6b7d26574f7093776293c0e5dd49041a5eee99efad7dc635baa6f2dc0a2e26"
+      "count": 146,
+      "sha256": "fc812f880522f786bb4d06f1e2137c517fa07507bec8eb5005739a2cc89d40eb"
+    },
+    {
+      "file": "planner/workload.py",
+      "metric": "python_ast_statements",
+      "count": 48,
+      "sha256": "c0ed237b83ff4069623dabf699ae7a15e6998805264010ff18037babf35ecad7"
     },
     {
       "file": "templates/base.html",
@@ -453,7 +477,7 @@
       "sha256": "188184357e33fdc21e2b7748d2bd1759e50110f12adbaa882959422d1f59a54f"
     }
   ],
-  "mixed_code_units": 1736,
+  "mixed_code_units": 1876,
   "method": "Python AST statements excluding docstrings/tests/migrations; HTML/CSS nonempty lines excluding comments. Different units are reported separately; not a standardized logical-line certification.",
   "application_models": [
     {
@@ -512,6 +536,7 @@
         "due_date",
         "priority",
         "planned_minutes",
+        "status_revision",
         "is_done",
         "completed_at",
         "created_at",
@@ -631,12 +656,41 @@
         "size",
         "created_at"
       ]
+    },
+    {
+      "model": "TaskStateEvent",
+      "table": "planner_taskstateevent",
+      "fields": [
+        "id",
+        "owner",
+        "task",
+        "title",
+        "previous_done",
+        "is_done",
+        "due_date",
+        "planned_minutes",
+        "revision",
+        "recorded_at"
+      ]
+    },
+    {
+      "model": "TimeCommand",
+      "table": "planner_timecommand",
+      "fields": [
+        "id",
+        "owner",
+        "key",
+        "payload",
+        "entry",
+        "created_at"
+      ]
     }
   ],
-  "domain_table_count": 12,
+  "domain_table_count": 13,
   "technical_models": [
     "DemoDataset",
-    "PrivateFileBlob"
+    "PrivateFileBlob",
+    "TimeCommand"
   ],
   "public_guides": [
     {
@@ -720,7 +774,9 @@
     "/sessions/",
     "/profile/",
     "/analytics/",
-    "/research/"
+    "/research/",
+    "/tasks/history/",
+    "/workload/"
   ],
   "roles": [
     "student",

@@ -72,7 +72,13 @@ def verify(app_python, output):
                     edit=item.get_by_role('link',name='Изменить',exact=True).get_attribute('href')
                     task_id=re.search(r'/tasks/(\d+)/',edit).group(1);checks.append('task_created_from_form');shot('tasks-desktop.png')
                     visit(f'/tasks/{task_id}/time/');page.locator('#id_date').fill(date.today().isoformat());page.locator('#id_minutes').fill('7')
+                    repeated=page.locator('main form').evaluate('(form)=>Object.fromEntries(new FormData(form))')
                     page.get_by_role('button',name='Сохранить время',exact=True).click();page.wait_for_url('**/tasks/');checks.append('manual_time_saved')
+                    replay=context.request.post(url+f'/tasks/{task_id}/time/',form=repeated,headers={'Referer':url+f'/tasks/{task_id}/time/'})
+                    assert replay.status==200
+                    visit(f'/tasks/{task_id}/time/')
+                    assert page.get_by_role('link',name='Исправить',exact=True).count()==1
+                    checks.append('manual_time_retry_keeps_one_record')
                     visit('/sessions/new/');page.locator('#id_task').select_option(task_id)
                     previous=(datetime.now(ZoneInfo('Asia/Tbilisi'))-timedelta(days=1)).replace(hour=12,minute=0)
                     page.locator('#id_starts_at').fill(previous.strftime('%Y-%m-%dT%H:%M'));page.locator('#id_planned_minutes').fill('25')
@@ -86,6 +92,22 @@ def verify(app_python, output):
                     with page.expect_download() as result:page.get_by_role('link',name='Скачать',exact=True).click()
                     downloaded=target/'download.txt';result.value.save_as(downloaded)
                     assert downloaded.read_text()=='Вымышленный учебный материал';checks.append('private_file_roundtrip')
+                    visit('/workload/')
+                    workload=page.locator('article').filter(has=page.get_by_role('heading',name='Браузерная учебная задача',exact=True))
+                    assert 'осталось 16 мин' in workload.inner_text()
+                    shot('workload-desktop.png');checks.append('remaining_work_uses_all_actual_time')
+                    visit('/tasks/')
+                    item=page.locator('article').filter(has=page.get_by_role('heading',name='Браузерная учебная задача',exact=True))
+                    old_state=item.locator('form').evaluate('(form)=>Object.fromEntries(new FormData(form))')
+                    item.get_by_role('button',name='Завершить',exact=True).click();page.wait_for_url('**/tasks/')
+                    visit('/tasks/?state=done')
+                    item=page.locator('article').filter(has=page.get_by_role('heading',name='Браузерная учебная задача',exact=True))
+                    item.get_by_role('button',name='Вернуть в план',exact=True).click();page.wait_for_url('**/tasks/')
+                    stale=context.request.post(url+f'/tasks/{task_id}/toggle/',form=old_state,headers={'Referer':url+'/tasks/'})
+                    assert stale.status==200 and 'Статус уже изменился' in stale.text()
+                    visit('/tasks/history/')
+                    assert page.get_by_role('heading',name='Браузерная учебная задача',exact=True).count()==2
+                    shot('history-desktop.png');checks.append('state_history_and_stale_form')
                     visit('/analytics/');shot('analytics-desktop.png')
                     with page.expect_download() as result:page.get_by_role('link',name='Отчёт PDF',exact=True).click()
                     pdf=output/'study-browser.pdf';result.value.save_as(pdf);assert pdf.read_bytes().startswith(b'%PDF-');checks.append('pdf_download')
@@ -95,7 +117,7 @@ def verify(app_python, output):
                     for path in ['/week/','/goals/','/groups/','/references/','/profile/','/research/']:visit(path)
                     checks.append('private_navigation')
                     page.set_viewport_size({'width':390,'height':844})
-                    for path,name in [('/tasks/','tasks-mobile.png'),('/calendar/','calendar-mobile.png'),('/research/','research-mobile.png')]:
+                    for path,name in [('/tasks/','tasks-mobile.png'),('/calendar/','calendar-mobile.png'),('/research/','research-mobile.png'),('/workload/','workload-mobile.png'),('/tasks/history/','history-mobile.png')]:
                         visit(path)
                         if path=='/research/':
                             assert page.locator('#id_after_end').input_value()==date.today().isoformat()
