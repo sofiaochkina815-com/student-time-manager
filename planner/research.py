@@ -1,3 +1,7 @@
+from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
+from django.db import transaction
+from .history_statistics import history_statistics
 """Сравнение личного учёта двух равных периодов без причинных выводов."""
 from datetime import timedelta
 from decimal import Decimal
@@ -31,7 +35,11 @@ class ComparisonForm(forms.Form):
         return data
 
 
+@transaction.atomic
 def compare_periods(user, **values):
+    locked=get_user_model().objects.select_for_update().get(pk=user.pk)
+    if not locked.is_active:
+        raise PermissionDenied
     form = ComparisonForm(values)
     if not form.is_valid():
         raise ValidationError(form.errors.as_text())
@@ -53,7 +61,7 @@ def compare_periods(user, **values):
         first, second = periods[0][key], periods[1][key]
         rows.append({"key": key, "label": label, "before": first, "after": second,
             "delta": second-first, "relative_percent": Decimal(second-first)*100/first if first else None})
-    return {"schema_version": 1, "periods": periods, "rows": rows,
+    return {"schema_version": 2, "periods": periods, "rows": rows, "history": history_statistics(user,periods),
         "limitations": ["Self-reported records; missing records do not prove absence of work.",
             "Current task estimates and deadlines are mutable, not historical snapshots.",
             "A change in recorded time does not measure learning quality or the causal effect of the application.",
@@ -67,8 +75,8 @@ def comparison(request):
         "after_start": today-timedelta(days=6), "after_end": today}
     form = ComparisonForm(request.GET if request.GET else defaults)
     report = compare_periods(request.user, **form.cleaned_data) if form.is_valid() else None
-    if request.GET.get("format") == "json" and report:
-        response = JsonResponse(report, json_dumps_params={"ensure_ascii": False})
+    if request.GET.get("format") == "json":
+        response = JsonResponse(report if report else {"errors":form.errors}, status=200 if report else 400, json_dumps_params={"ensure_ascii": False})
         response["Content-Disposition"] = 'attachment; filename="study-period-comparison.json"'
         response["Cache-Control"] = "private, no-store"
         return response
