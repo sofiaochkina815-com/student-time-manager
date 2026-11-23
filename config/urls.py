@@ -25,7 +25,10 @@ from planner.calendar_export import calendar_export
 
 from planner.task_history import history
 
+from planner.workload import workload
+
 urlpatterns = [
+    path("workload/", workload, name="workload"),
     path("tasks/history/", history, name="task_history"),
     path("calendar/export.ics", calendar_export, name="calendar_export"),
     path("calendar/", month_calendar, name="month_calendar"),
