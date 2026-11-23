@@ -1,0 +1,2 @@
+{% extends 'base.html' %}{% block crumb %}Удаление записи времени{% endblock %}
+{% block content %}<h1>Удалить запись времени?</h1><p>{{ entry.task.title }} · {{ entry.date|date:'d.m.Y' }} · {{ entry.minutes }} мин</p><p>Минуты будут исключены из текущей аналитики. Время завершённой сессии удалить нельзя.</p><form method="post">{% csrf_token %}<button class="button">Удалить запись</button></form><a href="{% url 'time_entry' entry.task_id %}">Отмена</a>{% endblock %}

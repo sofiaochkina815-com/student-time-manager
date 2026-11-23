@@ -26,6 +26,31 @@ def record_time(*, user, task_id, date, minutes, note=""):
     return entry
 
 
+@transaction.atomic
+def correct_time(*, user, entry_id, date=None, minutes=None, note="", delete=False):
+    locked = get_user_model().objects.select_for_update().get(pk=user.pk)
+    if not locked.is_active:
+        raise PermissionDenied
+    entry = TimeEntry.objects.select_for_update().filter(pk=entry_id, task__owner=user).first()
+    if entry is None:
+        raise PermissionDenied("Нет доступа к этой записи времени.")
+    from .models import StudySession
+    if StudySession.objects.filter(time_entry=entry).exists():
+        raise ValidationError("Время завершённой сессии защищено от прямого изменения и удаления.")
+    if delete:
+        entry.delete()
+        return None
+    if date is None or date > timezone.localdate():
+        raise ValidationError("Выберите фактическую дату не позже сегодняшнего дня.")
+    entry.date, entry.minutes, entry.note = date, minutes, note
+    entry.full_clean()
+    used = TimeEntry.objects.filter(task__owner=user, date=date).exclude(pk=entry.pk).aggregate(total=Sum("minutes"))["total"] or 0
+    if used+minutes > 1440:
+        raise ValidationError("Сумма записей за сутки не может превышать 24 часа.")
+    entry.save(update_fields=["date", "minutes", "note"])
+    return entry
+
+
 def week_summary(user, week_start):
     start = week_start - timedelta(days=week_start.weekday())
     end = start + timedelta(days=6)

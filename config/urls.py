@@ -17,7 +17,11 @@ from config.health import live, ready
 
 from planner.research import comparison
 
+from planner.time_corrections import time_edit, time_delete
+
 urlpatterns = [
+    path("time/<int:pk>/edit/", time_edit, name="time_edit"),
+    path("time/<int:pk>/delete/", time_delete, name="time_delete"),
     path("research/", comparison, name="comparison"),
     path("health/live/", live, name="health_live"),
     path("health/ready/", ready, name="health_ready"),

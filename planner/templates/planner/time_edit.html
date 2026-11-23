@@ -1,0 +1,2 @@
+{% extends 'base.html' %}{% block crumb %}Исправление времени{% endblock %}
+{% block content %}<h1>Исправить запись времени</h1><p>{{ entry.task.title }}</p><p>Исправление меняет текущие аналитические сводки. Записи завершённых сессий защищены.</p><form method="post">{% csrf_token %}{{ form.as_p }}<button class="button">Сохранить исправление</button></form><a href="{% url 'time_entry' entry.task_id %}">К истории задачи</a>{% endblock %}

@@ -2,4 +2,4 @@
 {% block crumb %}<a href="{% url 'task_list' %}">Мой план</a> / Учёт времени{% endblock %}
 {% block content %}<section class="form-panel"><p class="eyebrow">ОТ ПЛАНА К РЕЗУЛЬТАТУ</p><h1>Записать время</h1><p>{{ task.title }}</p>
 <form method="post">{% csrf_token %}{{ form.as_p }}<div class="actions"><button class="button">Сохранить время</button><a href="{% url 'task_list' %}">Назад к задачам</a></div></form>
-<h2>История работы</h2>{% for entry in entries %}<p><strong>{{ entry.minutes }} мин</strong> · {{ entry.date|date:'d.m.Y' }}<br>{{ entry.note }}</p>{% empty %}<p class="muted">Записей пока нет.</p>{% endfor %}</section>{% endblock %}
+<h2>История работы</h2>{% for entry in entries %}<p><strong>{{ entry.minutes }} мин</strong> · {{ entry.date|date:'d.m.Y' }}<br>{{ entry.note }} · <a href="{% url 'time_edit' entry.pk %}">Исправить</a> · <a href="{% url 'time_delete' entry.pk %}">Удалить</a></p>{% empty %}<p class="muted">Записей пока нет.</p>{% endfor %}</section>{% endblock %}
