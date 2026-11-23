@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block crumb %}Сравнение периодов{% endblock %}
+{% block content %}<h1>Сравнение учебных периодов</h1>
+<p>Выберите два равных непересекающихся периода. Сравнение описывает ваш учёт: рост или снижение минут само по себе не означает улучшения обучения.</p>
+<form method="get" class="card">{{ form.as_p }}<button class="button">Сравнить</button></form>
+{% if report %}<p>{% for period in report.periods %}{{ period.start|date:'d.m.Y' }}–{{ period.end|date:'d.m.Y' }}{% if not forloop.last %} и {% endif %}{% endfor %}</p>
+<a href="?{{ export_query }}">Скачать данные сравнения JSON</a>
+<div class="table-wrap"><table><thead><tr><th>Показатель</th><th>Первый период</th><th>Второй период</th><th>Изменение</th><th>Изменение, %</th></tr></thead><tbody>{% for row in report.rows %}<tr><td>{{ row.label }}</td><td>{{ row.before|floatformat:2 }}</td><td>{{ row.after|floatformat:2 }}</td><td>{{ row.delta|floatformat:2 }}</td><td>{% if row.relative_percent is None %}Не определено: первое значение 0{% else %}{{ row.relative_percent|floatformat:2 }}{% endif %}</td></tr>{% endfor %}</tbody></table></div>
+<p>Отсутствие записи не доказывает отсутствие работы. Дедлайны и оценки задач показаны в их текущем состоянии, а не по историческому снимку. Различия могут объясняться нагрузкой, дисциплинами и полнотой учёта. Эти данные не устанавливают причинный эффект приложения и не измеряют качество знаний.</p>{% endif %}{% endblock %}

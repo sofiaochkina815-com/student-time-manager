@@ -15,7 +15,10 @@ from planner.documents import study_pdf
 
 from config.health import live, ready
 
+from planner.research import comparison
+
 urlpatterns = [
+    path("research/", comparison, name="comparison"),
     path("health/live/", live, name="health_live"),
     path("health/ready/", ready, name="health_ready"),
     path("admin/", admin.site.urls),
