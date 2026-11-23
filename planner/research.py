@@ -11,10 +11,10 @@ from .models import TimeEntry, Task
 
 
 class ComparisonForm(forms.Form):
-    before_start = forms.DateField(label="Первый период: с", widget=forms.DateInput(attrs={"type": "date"}))
-    before_end = forms.DateField(label="Первый период: по", widget=forms.DateInput(attrs={"type": "date"}))
-    after_start = forms.DateField(label="Второй период: с", widget=forms.DateInput(attrs={"type": "date"}))
-    after_end = forms.DateField(label="Второй период: по", widget=forms.DateInput(attrs={"type": "date"}))
+    before_start = forms.DateField(label="Первый период: с", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}))
+    before_end = forms.DateField(label="Первый период: по", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}))
+    after_start = forms.DateField(label="Второй период: с", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}))
+    after_end = forms.DateField(label="Второй период: по", widget=forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}))
 
     def clean(self):
         data = super().clean()
