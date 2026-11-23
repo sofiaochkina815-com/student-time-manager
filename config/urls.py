@@ -23,7 +23,10 @@ from planner.calendar_view import month_calendar
 
 from planner.calendar_export import calendar_export
 
+from planner.task_history import history
+
 urlpatterns = [
+    path("tasks/history/", history, name="task_history"),
     path("calendar/export.ics", calendar_export, name="calendar_export"),
     path("calendar/", month_calendar, name="month_calendar"),
     path("time/<int:pk>/edit/", time_edit, name="time_edit"),

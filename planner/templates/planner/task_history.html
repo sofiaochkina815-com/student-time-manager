@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+{% block crumb %}<a href="{% url 'task_list' %}">Задачи</a> / История статусов{% endblock %}
+{% block content %}<h1>История статусов задач</h1>
+<p>Сохраняются новые переходы после включения журнала. Для прежних задач история не восстановлена. Название, срок и оценка — снимок на момент перехода; удаление задачи не стирает событие.</p>
+<section class="task-list">{% for event in page %}<article class="card"><h2>{{ event.title }}</h2>
+<p>{{ event.recorded_at|date:'d.m.Y H:i:s' }} · {% if event.is_done %}Завершена{% else %}Возвращена в план{% endif %} · переход №{{ event.revision }}</p>
+<p>Оценка: {{ event.planned_minutes }} мин · Срок: {{ event.due_date|date:'d.m.Y'|default:'не задан' }}{% if not event.task_id %} · Задача удалена{% endif %}</p></article>{% empty %}<p>Переходов пока нет.</p>{% endfor %}</section>
+<nav class="actions">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Предыдущая</a>{% endif %}<p>{{ page.number }} / {{ page.paginator.num_pages }}</p>{% if page.has_next %}<a href="?page={{ page.next_page_number }}">Следующая</a>{% endif %}</nav>{% endblock %}

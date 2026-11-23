@@ -52,11 +52,11 @@ class TaskAccessTests(TestCase):
     def test_completion_can_be_reversed(self):
         url = reverse("task_toggle", args=[self.task.pk])
         self.assertEqual(self.client.get(url).status_code, 405)
-        self.client.post(url)
+        self.client.post(url, {"done": "1", "revision": 0})
         self.task.refresh_from_db()
         self.assertTrue(self.task.is_done)
         self.assertIsNotNone(self.task.completed_at)
-        self.client.post(url)
+        self.client.post(url, {"done": "0", "revision": 1})
         self.task.refresh_from_db()
         self.assertFalse(self.task.is_done)
         self.assertIsNone(self.task.completed_at)

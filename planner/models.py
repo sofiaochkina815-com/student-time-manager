@@ -74,6 +74,7 @@ class Task(models.Model):
     due_date = models.DateField("Дедлайн", null=True, blank=True)
     priority = models.PositiveSmallIntegerField("Приоритет", choices=Priority.choices, default=Priority.NORMAL)
     planned_minutes = models.PositiveIntegerField("План, минут", default=60, validators=[MinValueValidator(1), MaxValueValidator(10080)])
+    status_revision = models.PositiveIntegerField(default=0)
     is_done = models.BooleanField("Завершена", default=False)
     completed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -238,3 +239,18 @@ class PrivateFileBlob(models.Model):
     content = models.BinaryField()
     size = models.PositiveIntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class TaskStateEvent(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    task = models.ForeignKey(Task, null=True, on_delete=models.SET_NULL)
+    title = models.CharField(max_length=200)
+    previous_done = models.BooleanField()
+    is_done = models.BooleanField()
+    due_date = models.DateField(null=True)
+    planned_minutes = models.PositiveIntegerField()
+    revision = models.PositiveIntegerField()
+    recorded_at = models.DateTimeField(default=timezone.now, editable=False)
+
+    class Meta:
+        ordering = ['-recorded_at', '-pk']

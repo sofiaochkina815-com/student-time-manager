@@ -1,3 +1,4 @@
+from .task_history import StateForm, set_task_state
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.decorators import login_required
@@ -83,7 +84,7 @@ def task_edit(request, pk=None):
     if request.method == "POST" and form.is_valid():
         task = form.save(commit=False)
         task.owner = request.user
-        task.save()
+        task.save(update_fields=[*TaskForm.Meta.fields, "updated_at"] if pk else None)
         messages.success(request, "Задача сохранена.")
         return redirect("task_list")
     return render(request, "planner/task_form.html", {"form": form, "task": task})
@@ -93,9 +94,14 @@ def task_edit(request, pk=None):
 @require_POST
 def task_toggle(request, pk):
     task = get_object_or_404(Task, pk=pk, owner=request.user)
-    task.is_done = not task.is_done
-    task.completed_at = timezone.now() if task.is_done else None
-    task.save(update_fields=["is_done", "completed_at", "updated_at"])
+    form = StateForm(request.POST)
+    if form.is_valid():
+        try:
+            set_task_state(request.user, task.pk, **form.cleaned_data)
+        except ValidationError as exc:
+            messages.error(request, str(exc.messages[0]))
+    else:
+        messages.error(request, 'Некорректная форма статуса. Обновите страницу.')
     return redirect("task_list")
 
 
