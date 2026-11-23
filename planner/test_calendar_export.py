@@ -12,8 +12,9 @@ class CalendarExportTests(TestCase):
     def test_utc_all_day_folding_escaping_and_private_scope(self):
         user=get_user_model().objects.create_user('ics')
         foreign=get_user_model().objects.create_user('foreign-ics')
-        title='Кириллица, точка; '+('длинная строка '*15)+'\r\nBEGIN:VEVENT'
-        task=Task.objects.create(owner=user,title=title,due_date=date(2026,11,30))
+        title='Кириллица, точка; '+('длинная строка '*8)+'\r\nBEGIN:VEVENT'
+        task=Task(owner=user,title=title,due_date=date(2026,11,30))
+        task.full_clean();task.save()
         Task.objects.create(owner=foreign,title='Чужое событие',due_date=date(2026,11,30))
         StudySession.objects.create(owner=user,task=task,starts_at=datetime(2026,11,30,19,30,tzinfo=dt_timezone.utc),planned_minutes=60,status='cancelled')
         with timezone.override('Asia/Tbilisi'):
