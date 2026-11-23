@@ -119,3 +119,7 @@ class TimeEntryForm(forms.ModelForm):
         if date > timezone.localdate():
             raise forms.ValidationError("Фактическое время нельзя записать за будущую дату.")
         return date
+
+
+class ManualTimeForm(TimeEntryForm):
+    command_key = forms.UUIDField(widget=forms.HiddenInput)

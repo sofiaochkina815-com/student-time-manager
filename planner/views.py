@@ -1,3 +1,5 @@
+import uuid
+from .forms import ManualTimeForm
 from .task_history import StateForm, set_task_state
 from django.contrib.auth import login
 from django.contrib.auth.forms import UserCreationForm
@@ -122,7 +124,7 @@ def task_delete(request, pk):
 @login_required
 def time_entry(request, pk):
     task = get_object_or_404(Task, pk=pk, owner=request.user)
-    form = TimeEntryForm(request.POST if request.method == "POST" else None)
+    form = ManualTimeForm(request.POST if request.method == "POST" else None, initial={"command_key": uuid.uuid4()})
     if request.method == "POST" and form.is_valid():
         try:
             record_time(user=request.user, task_id=task.pk, **form.cleaned_data)

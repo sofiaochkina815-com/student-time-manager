@@ -254,3 +254,11 @@ class TaskStateEvent(models.Model):
 
     class Meta:
         ordering = ['-recorded_at', '-pk']
+
+
+class TimeCommand(models.Model):
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    key = models.UUIDField(unique=True)
+    payload = models.JSONField()
+    entry = models.ForeignKey(TimeEntry, null=True, on_delete=models.SET_NULL)
+    created_at = models.DateTimeField(auto_now_add=True)

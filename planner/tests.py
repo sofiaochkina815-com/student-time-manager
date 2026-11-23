@@ -1,3 +1,4 @@
+from uuid import uuid4
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -108,12 +109,12 @@ class TimeEntryTests(TestCase):
         self.assertEqual(self.client.post(reverse("time_entry", args=[self.task.pk]), {}).status_code, 404)
 
     def test_valid_form_persists_minutes(self):
-        response = self.client.post(reverse("time_entry", args=[self.task.pk]), {"date": timezone.localdate().isoformat(), "minutes": 25, "note": "Черновик"})
+        response = self.client.post(reverse("time_entry", args=[self.task.pk]), {"command_key": uuid4(), "date": timezone.localdate().isoformat(), "minutes": 25, "note": "Черновик"})
         self.assertRedirects(response, reverse("task_list"))
         self.assertEqual(TimeEntry.objects.get().minutes, 25)
 
     def test_budget_error_is_visible_in_form(self):
         record_time(user=self.user, task_id=self.task.pk, date=timezone.localdate(), minutes=1440)
-        response = self.client.post(reverse("time_entry", args=[self.task.pk]), {"date": timezone.localdate().isoformat(), "minutes": 1})
+        response = self.client.post(reverse("time_entry", args=[self.task.pk]), {"command_key": uuid4(), "date": timezone.localdate().isoformat(), "minutes": 1})
         self.assertContains(response, "24 часа")
         self.assertEqual(TimeEntry.objects.count(), 1)

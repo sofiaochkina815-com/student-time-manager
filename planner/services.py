@@ -4,17 +4,28 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
-from .models import Task, TimeEntry, WeekPlan
+from .models import Task, TimeEntry, WeekPlan, TimeCommand
 from datetime import timedelta
 
 
 @transaction.atomic
-def record_time(*, user, task_id, date, minutes, note=""):
+def record_time(*, user, task_id, date, minutes, note="", command_key=None):
     # Блокировка пользователя сериализует проверку суточного лимита в PostgreSQL.
-    get_user_model().objects.select_for_update().get(pk=user.pk)
+    locked = get_user_model().objects.select_for_update().get(pk=user.pk)
+    if not locked.is_active:
+        raise PermissionDenied
     task = Task.objects.filter(pk=task_id, owner=user).first()
     if task is None:
         raise PermissionDenied("Нет доступа к этой задаче.")
+    payload = {'task_id': task.pk, 'date': date.isoformat(), 'minutes': minutes, 'note': note}
+    if command_key is not None:
+        receipt = TimeCommand.objects.filter(key=command_key).first()
+        if receipt:
+            if receipt.owner_id != user.pk or receipt.payload != payload:
+                raise ValidationError('Ключ записи уже использован с другими данными.')
+            if receipt.entry_id is None:
+                raise ValidationError('Эта запись уже была сохранена и удалена. Откройте новую форму.')
+            return receipt.entry
     if date > timezone.localdate():
         raise ValidationError("Дата фактической работы не может быть в будущем.")
     entry = TimeEntry(task=task, date=date, minutes=minutes, note=note)
@@ -23,6 +34,8 @@ def record_time(*, user, task_id, date, minutes, note=""):
     if used + minutes > 1440:
         raise ValidationError("Сумма записей за сутки не может превышать 24 часа.")
     entry.save()
+    if command_key is not None:
+        TimeCommand.objects.create(owner=user, key=command_key, payload=payload, entry=entry)
     return entry
 
 
