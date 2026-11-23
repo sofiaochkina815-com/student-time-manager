@@ -19,7 +19,10 @@ from planner.research import comparison
 
 from planner.time_corrections import time_edit, time_delete
 
+from planner.calendar_view import month_calendar
+
 urlpatterns = [
+    path("calendar/", month_calendar, name="month_calendar"),
     path("time/<int:pk>/edit/", time_edit, name="time_edit"),
     path("time/<int:pk>/delete/", time_delete, name="time_delete"),
     path("research/", comparison, name="comparison"),
