@@ -263,3 +263,17 @@ class TimeCommand(models.Model):
     payload = models.JSONField()
     entry = models.ForeignKey(TimeEntry, null=True, on_delete=models.SET_NULL)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class WorkloadSnapshot(models.Model):
+    """Неизменяемый пользовательский снимок отчёта, не история задним числом."""
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    command_key = models.UUIDField()
+    week_start = models.DateField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    payload = models.JSONField()
+    sha256 = models.CharField(max_length=64)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        constraints = [models.UniqueConstraint(fields=['owner','command_key'], name='workload_snapshot_owner_command')]

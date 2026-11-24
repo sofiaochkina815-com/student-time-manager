@@ -29,7 +29,13 @@ from planner.workload import workload
 
 from planner.subject_analysis import subjects
 
+from planner import snapshots
+
 urlpatterns = [
+    path("workload/snapshots/",snapshots.snapshot_list,name="snapshot_list"),
+    path("workload/snapshots/capture/",snapshots.snapshot_capture,name="snapshot_capture"),
+    path("workload/snapshots/<int:pk>/",snapshots.snapshot_detail,name="snapshot_detail"),
+    path("workload/snapshots/<int:pk>/delete/",snapshots.snapshot_delete,name="snapshot_delete"),
     path("analytics/subjects/",subjects,name="subject_analysis"),
     path("workload/", workload, name="workload"),
     path("tasks/history/", history, name="task_history"),

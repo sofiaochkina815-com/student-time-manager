@@ -61,4 +61,7 @@ def workload(request):
         else:
             page = Paginator(report['rows'], 50).get_page(request.GET.get('page'))
     query = request.GET.copy();query.pop('page', None)
-    return render(request, 'planner/workload.html', {'form': form, 'report': report, 'page': page, 'query': query.urlencode()})
+    from .snapshots import CaptureForm
+    from uuid import uuid4
+    capture_form = CaptureForm(initial={"week": report["start"], "command_key": uuid4()}) if report else None
+    return render(request, 'planner/workload.html', {'form': form, 'report': report, 'page': page, 'query': query.urlencode(), 'capture_form':capture_form})

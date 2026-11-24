@@ -1,0 +1,5 @@
+{% extends 'base.html' %}{% block crumb %}Снимки нагрузки{% endblock %}{% block content %}
+<h1>Сохранённые снимки нагрузки</h1><p>Снимок хранит оценки на момент явного сохранения. Последующие изменения задач не меняют его. До 100 снимков; удаление необратимо.</p><p><a href="{% url 'workload' %}">Рассчитать текущую нагрузку</a></p>
+{% for error in errors %}<p class="notice" role="alert">{{ error }}</p>{% endfor %}
+{% for item in page %}<article class="card"><h2><a href="{% url 'snapshot_detail' item.pk %}">Неделя {{ item.week_start|date:'d.m.Y' }}</a></h2><p>Сохранено {{ item.created_at|date:'d.m.Y H:i:s' }}</p></article>{% empty %}{% if not errors %}<p class="card">Снимков пока нет.</p>{% endif %}{% endfor %}
+{% if page %}<nav class="actions" aria-label="Страницы снимков">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Предыдущая</a>{% endif %}<p>{{ page.number }} / {{ page.paginator.num_pages }}</p>{% if page.has_next %}<a href="?page={{ page.next_page_number }}">Следующая</a>{% endif %}</nav>{% endif %}{% endblock %}

@@ -2,8 +2,9 @@
 {% block crumb %}<a href="{% url 'weekly_plan' %}">Недельная нагрузка</a> / Остаток работы{% endblock %}
 {% block content %}<h1>Остаток работы к концу недели</h1>
 <p>Оценка по текущим незавершённым задачам со сроком не позже конца недели, включая прежние сроки. План задачи минус всё записанное по ней время, минимум 0. Это оценка, а не обещание успеть.</p>
+<p><a href="{% url 'snapshot_list' %}">Сохранённые снимки нагрузки</a></p>
 <form method="get" class="card">{{ form.as_p }}<button class="button">Рассчитать</button></form>
-{% if report %}<p>{{ report.start|date:'d.m.Y' }} — {{ report.end|date:'d.m.Y' }} · Снимок {{ report.generated_at|date:'d.m.Y H:i' }}</p>
+{% if report %}<form method="post" action="{% url 'snapshot_capture' %}" class="card">{% csrf_token %}<input type="hidden" name="week" value="{{ report.start|date:'Y-m-d' }}">{{ capture_form.command_key }}<button class="button">Сохранить текущий снимок</button><p>При сохранении нагрузка будет рассчитана заново по актуальным задачам.</p></form><p>{{ report.start|date:'d.m.Y' }} — {{ report.end|date:'d.m.Y' }} · Снимок {{ report.generated_at|date:'d.m.Y H:i' }}</p>
 <section class="stats"><div class="card"><span>Осталось по оценкам</span><strong>{{ report.required }} мин</strong></div><div class="card"><span>Из прежних сроков</span><strong>{{ report.backlog }} мин</strong></div><div class="card"><span>Учтено на неделе</span><strong>{{ report.actual }} мин</strong></div><div class="card"><span>Без срока, вне расчёта</span><strong>{{ report.undated }}</strong></div></section>
 {% if report.capacity is None %}<p class="notice">Бюджет недели не задан. <a href="{% url 'weekly_plan' %}?week={{ report.start|date:'Y-m-d' }}">Задать бюджет</a>.</p>{% else %}<p class="notice">Бюджет: {{ report.capacity }} мин. Осталось в бюджете после учтённой работы: {{ report.available }} мин. Недостаёт по текущим оценкам: {{ report.gap }} мин.</p>{% endif %}
 <p>Пересмотрите оценки, если время уже превысило план, а задача ещё не завершена. Будущие занятия не вычитаются как выполненные. Задачи без срока и со сроком после недели сюда не входят.</p>
