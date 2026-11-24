@@ -98,6 +98,13 @@ def verify(app_python, output):
                     workload=page.locator('article').filter(has=page.get_by_role('heading',name='Браузерная учебная задача',exact=True))
                     assert 'осталось 16 мин' in workload.inner_text()
                     shot('workload-desktop.png');checks.append('remaining_work_uses_all_actual_time')
+                    page.get_by_role('button',name='Сохранить текущий снимок',exact=True).click();page.wait_for_url('**/workload/snapshots/*/')
+                    snapshot_path=page.url.removeprefix(url)
+                    with page.expect_download() as result:page.get_by_role('link',name='Скачать сохранённый снимок JSON',exact=True).click()
+                    snapshot_file=target/'snapshot.json';result.value.save_as(snapshot_file)
+                    frozen=json.loads(snapshot_file.read_text())
+                    assert next(row for row in frozen['payload']['rows'] if row['task_id']==int(task_id))['remaining']==16
+                    shot('snapshot-desktop.png');checks.append('workload_snapshot_download')
                     visit('/tasks/')
                     item=page.locator('article').filter(has=page.get_by_role('heading',name='Браузерная учебная задача',exact=True))
                     old_state=item.locator('form').evaluate('(form)=>Object.fromEntries(new FormData(form))')
@@ -118,6 +125,8 @@ def verify(app_python, output):
                     assert stale_edit.status==200 and 'уже изменилась' in stale_edit.text()
                     visit(f'/tasks/{task_id}/edit/');assert page.locator('#id_planned_minutes').input_value()=='41'
                     checks.append('old_editor_cannot_overwrite_newer_task')
+                    assert context.request.get(url+snapshot_path+'?format=json').json()==frozen
+                    checks.append('snapshot_unchanged_after_task_edit')
                     visit('/research/')
                     with page.expect_download() as result:page.get_by_role('link',name='Скачать данные сравнения JSON',exact=True).click()
                     history_json=target/'history-comparison.json';result.value.save_as(history_json)
@@ -145,8 +154,15 @@ def verify(app_python, output):
                     ics=output/'study-browser.ics';result.value.save_as(ics);assert b'BEGIN:VCALENDAR' in ics.read_bytes();checks.append('calendar_and_ics_download')
                     for path in ['/week/','/goals/','/groups/','/references/','/profile/','/research/']:visit(path)
                     checks.append('private_navigation')
+                    visit('/week/')
+                    old_budget=page.locator('main form').evaluate('(form)=>Object.fromEntries(new FormData(form))')
+                    page.locator('#id_capacity_minutes').fill('600');page.get_by_role('button',name='Сохранить бюджет',exact=True).click();page.wait_for_url('**/week/?week=*')
+                    rejected=context.request.post(page.url,form=old_budget,headers={'Referer':page.url})
+                    assert rejected.status==200 and 'уже изменён в другой вкладке' in rejected.text()
+                    page.reload();assert page.locator('#id_capacity_minutes').input_value()=='600'
+                    checks.append('stale_week_budget_rejected')
                     page.set_viewport_size({'width':390,'height':844})
-                    for path,name in [('/tasks/','tasks-mobile.png'),('/calendar/','calendar-mobile.png'),('/research/','research-mobile.png'),('/workload/','workload-mobile.png'),('/tasks/history/','history-mobile.png'),('/analytics/subjects/','subjects-mobile.png')]:
+                    for path,name in [('/tasks/','tasks-mobile.png'),('/workload/snapshots/','snapshots-mobile.png'),(snapshot_path,'snapshot-mobile.png'),('/calendar/','calendar-mobile.png'),('/research/','research-mobile.png'),('/workload/','workload-mobile.png'),('/tasks/history/','history-mobile.png'),('/analytics/subjects/','subjects-mobile.png')]:
                         visit(path)
                         if path=='/research/':
                             assert page.locator('#id_after_end').input_value()==date.today().isoformat()
