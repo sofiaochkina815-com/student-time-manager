@@ -17,6 +17,7 @@ from django.views.decorators.http import require_POST
 from .forms import TaskForm, TimeEntryForm, SubjectForm, CategoryForm, TaskFilterForm, WeekPlanForm
 from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudentProfile
 from django.http import Http404
+from .week_planning import save_week_plan
 from .services import record_time, week_summary
 from datetime import timedelta
 from django.utils.dateparse import parse_date
@@ -195,8 +196,12 @@ def weekly_plan(request):
         instance = WeekPlan(owner=request.user, week_start=start, capacity_minutes=profile.weekly_available_minutes if profile else 600)
     form = WeekPlanForm(request.POST if request.method == "POST" else None, instance=instance)
     if request.method == "POST" and form.is_valid():
-        form.save()
-        messages.success(request, "Бюджет учебного времени сохранён.")
-        return redirect(f"{request.path}?week={start.isoformat()}")
+        try:
+            save_week_plan(request.user, start, form.cleaned_data["expected_revision"], form.cleaned_data["capacity_minutes"], form.cleaned_data["note"])
+        except ValidationError as exc:
+            form.add_error(None, exc)
+        else:
+            messages.success(request, "Бюджет учебного времени сохранён.")
+            return redirect(f"{request.path}?week={start.isoformat()}")
     return render(request, "planner/week.html", {"form": form, "summary": week_summary(request.user, start),
         "previous_week": (start-timedelta(days=7)).isoformat(), "next_week": (start+timedelta(days=7)).isoformat()})

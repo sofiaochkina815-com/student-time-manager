@@ -108,6 +108,12 @@ class TaskFilterForm(forms.Form):
 
 
 class WeekPlanForm(forms.ModelForm):
+    expected_revision = forms.IntegerField(min_value=0, widget=forms.HiddenInput)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["expected_revision"].initial = self.instance.revision if self.instance.pk else 0
+
     class Meta:
         model = WeekPlan
         fields = ["capacity_minutes", "note"]

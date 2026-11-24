@@ -107,6 +107,7 @@ class TimeEntry(models.Model):
 
 
 class WeekPlan(models.Model):
+    revision = models.PositiveIntegerField(default=1, editable=False)
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     week_start = models.DateField("Начало недели")
     capacity_minutes = models.PositiveIntegerField("Доступно минут на неделю", default=600, validators=[MaxValueValidator(10080)])

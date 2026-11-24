@@ -33,8 +33,8 @@ class WeekTests(TestCase):
 
     def test_save_updates_same_owned_week(self):
         url = reverse("weekly_plan")+"?week=2026-11-18"
-        self.client.post(url, {"capacity_minutes": 300})
-        self.client.post(url, {"capacity_minutes": 400})
+        self.client.post(url, {"capacity_minutes": 300,"expected_revision":0})
+        self.client.post(url, {"capacity_minutes": 400,"expected_revision":1})
         plan = WeekPlan.objects.get()
         self.assertEqual((plan.owner, plan.week_start, plan.capacity_minutes), (self.user, self.start, 400))
 
