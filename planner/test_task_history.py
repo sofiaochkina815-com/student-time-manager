@@ -46,7 +46,9 @@ class TaskHistoryTests(TestCase):
 
     def test_edit_form_does_not_overwrite_completion(self):
         set_task_state(self.user, self.task.pk, True, 0)
-        self.client.post(reverse('task_edit', args=[self.task.pk]), {'title': 'Edited', 'priority': 2, 'planned_minutes': 40})
+        url=reverse('task_edit', args=[self.task.pk])
+        version=self.client.get(url).context['form']['expected_updated_at'].value()
+        self.assertEqual(self.client.post(url, {'title': 'Edited', 'priority': 2, 'planned_minutes': 40, 'expected_updated_at':version}).status_code,302)
         self.task.refresh_from_db()
         self.assertTrue(self.task.is_done)
         self.assertEqual(self.task.status_revision, 1)

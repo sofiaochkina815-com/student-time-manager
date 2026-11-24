@@ -1,3 +1,4 @@
+from .task_editing import save_task,EDITABLE_TASK_FIELDS
 import uuid
 from .forms import ManualTimeForm
 from .task_history import StateForm, set_task_state
@@ -86,11 +87,14 @@ def task_edit(request, pk=None):
     task = get_object_or_404(Task, pk=pk, owner=request.user) if pk else None
     form = TaskForm(request.POST if request.method == "POST" else None, instance=task, owner=request.user)
     if request.method == "POST" and form.is_valid():
-        task = form.save(commit=False)
-        task.owner = request.user
-        task.save(update_fields=[*TaskForm.Meta.fields, "updated_at"] if pk else None)
-        messages.success(request, "Задача сохранена.")
-        return redirect("task_list")
+        try:
+            task=save_task(request.user,{key:form.cleaned_data[key] for key in EDITABLE_TASK_FIELDS},
+                           task_id=pk,expected_updated_at=form.cleaned_data.get('expected_updated_at'))
+        except ValidationError as exc:
+            form.add_error(None,exc)
+        else:
+            messages.success(request, "Задача сохранена.")
+            return redirect("task_list")
     return render(request, "planner/task_form.html", {"form": form, "task": task})
 
 

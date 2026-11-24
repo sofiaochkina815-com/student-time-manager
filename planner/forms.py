@@ -1,3 +1,4 @@
+from .task_editing import EDITABLE_TASK_FIELDS
 from django import forms
 from django.utils import timezone
 from .models import Task, TimeEntry, Subject, TaskCategory, WeekPlan, StudyGroup, StudyGoal, StudySession, StudentProfile
@@ -50,9 +51,11 @@ class JoinGroupForm(forms.Form):
 
 
 class TaskForm(forms.ModelForm):
+    expected_updated_at=forms.DateTimeField(widget=forms.HiddenInput,required=False)
+
     class Meta:
         model = Task
-        fields = ["title", "description", "subject", "category", "due_date", "priority", "planned_minutes"]
+        fields = list(EDITABLE_TASK_FIELDS)
         widgets = {
             "due_date": forms.DateInput(format="%Y-%m-%d", attrs={"type": "date"}),
             "description": forms.Textarea(attrs={"rows": 3}),
@@ -61,6 +64,8 @@ class TaskForm(forms.ModelForm):
     def __init__(self, *args, owner, **kwargs):
         super().__init__(*args, **kwargs)
         self.instance.owner = owner
+        if self.instance.pk:
+            self.initial["expected_updated_at"]=self.instance.updated_at.isoformat()
         self.fields["subject"].queryset = Subject.objects.filter(owner=owner)
         self.fields["category"].queryset = TaskCategory.objects.filter(owner=owner)
 
