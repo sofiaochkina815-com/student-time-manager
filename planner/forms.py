@@ -90,6 +90,7 @@ class CategoryForm(ReferenceForm):
 
 
 class TaskFilterForm(forms.Form):
+    unassigned_subject=forms.BooleanField(label="Без дисциплины",required=False)
     q = forms.CharField(label="Поиск по задаче", required=False, max_length=200)
     subject = forms.ModelChoiceField(label="Дисциплина", queryset=Subject.objects.none(), required=False, empty_label="Все дисциплины")
     category = forms.ModelChoiceField(label="Категория", queryset=TaskCategory.objects.none(), required=False, empty_label="Все категории")

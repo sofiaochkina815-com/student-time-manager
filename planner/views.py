@@ -54,6 +54,8 @@ def task_list(request):
     ordering = ["-priority", "created_at", "pk"]
     if filters.is_valid():
         data = filters.cleaned_data
+        if data["unassigned_subject"]:
+            tasks=tasks.filter(subject__isnull=True)
         if data["q"]:
             tasks = tasks.filter(Q(title__icontains=data["q"]) | Q(description__icontains=data["q"]))
         for field in ["subject", "category"]:

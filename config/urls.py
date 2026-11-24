@@ -27,7 +27,10 @@ from planner.task_history import history
 
 from planner.workload import workload
 
+from planner.subject_analysis import subjects
+
 urlpatterns = [
+    path("analytics/subjects/",subjects,name="subject_analysis"),
     path("workload/", workload, name="workload"),
     path("tasks/history/", history, name="task_history"),
     path("calendar/export.ics", calendar_export, name="calendar_export"),
