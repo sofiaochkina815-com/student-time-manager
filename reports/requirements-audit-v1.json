@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "source_head": "67fe1960c3d8c4dc84500bc49b34d8bee31d9cc9",
+  "source_head": "213c4a2872601eec0092bc73f7db45550134602c",
   "code_counts": [
     {
       "file": "config/__init__.py",
@@ -35,8 +35,8 @@
     {
       "file": "config/urls.py",
       "metric": "python_ast_statements",
-      "count": 22,
-      "sha256": "5e99ba8b1735ac2ed1ff35b0a9aad765817da24313c57aaf5ef275805e5c3a2a"
+      "count": 23,
+      "sha256": "79b685cd23d91c1a2e6b473e65c88d5784e54d147ae64746e645dfdd09d8a5c8"
     },
     {
       "file": "config/wsgi.py",
@@ -119,8 +119,8 @@
     {
       "file": "planner/forms.py",
       "metric": "python_ast_statements",
-      "count": 89,
-      "sha256": "c42c3caf508c99db5ddb053dfbd0b8a8c83f3f7484ab66c88f3013e4cc81849f"
+      "count": 94,
+      "sha256": "fbc39ee7f75d4b6ff22628cb9078998f97cd54ba134add54d330d84e145f929e"
     },
     {
       "file": "planner/goals.py",
@@ -133,6 +133,12 @@
       "metric": "python_ast_statements",
       "count": 58,
       "sha256": "7bf70fc50a18871fa47017aae08fbf8499c69e45e40beb845229c88251a379a3"
+    },
+    {
+      "file": "planner/history_statistics.py",
+      "metric": "python_ast_statements",
+      "count": 19,
+      "sha256": "5cba1bb93e53fc8f5aa4ca12310f366b3a27c2dd866b8a28049fa73c236dbdaa"
     },
     {
       "file": "planner/knowledge.py",
@@ -185,8 +191,8 @@
     {
       "file": "planner/research.py",
       "metric": "python_ast_statements",
-      "count": 62,
-      "sha256": "df9c63567d5db0ab680e72127673ca34b1926b49286b518131126ee8a4069c04"
+      "count": 69,
+      "sha256": "3278d227b1c6079ef13e7b0d03c89d414f82c8eebd6081a56ea28ad1cc870eb0"
     },
     {
       "file": "planner/services.py",
@@ -225,6 +231,18 @@
       "sha256": "3fe804998008366632f09357c612ff94aa850c10ee68b0d03216d13584a402bd"
     },
     {
+      "file": "planner/subject_analysis.py",
+      "metric": "python_ast_statements",
+      "count": 72,
+      "sha256": "fc3e463d1acedc957621eacf9b1b6907923b3d403125073252f326338f2d2672"
+    },
+    {
+      "file": "planner/task_editing.py",
+      "metric": "python_ast_statements",
+      "count": 21,
+      "sha256": "21ed62cb6e6f6cdff0d85f893e27e17bac4051c521c135fc0cf28f7369e7a2c9"
+    },
+    {
       "file": "planner/task_history.py",
       "metric": "python_ast_statements",
       "count": 31,
@@ -234,7 +252,7 @@
       "file": "planner/templates/planner/analytics.html",
       "metric": "nonempty_markup_style_lines",
       "count": 4,
-      "sha256": "78d05260febcffdb327dda10f1a769876b506ec54e34ec5f3bfff7e4a399f0ef"
+      "sha256": "9873d24e88337c362499170d0d34be4a569836f77d9baf07576e577bfd123fc3"
     },
     {
       "file": "planner/templates/planner/attachment_delete.html",
@@ -257,8 +275,8 @@
     {
       "file": "planner/templates/planner/comparison.html",
       "metric": "nonempty_markup_style_lines",
-      "count": 9,
-      "sha256": "4e92da991aeac214974294dad4a7ef19def4759f95627b324c5d7a3f3771abf5"
+      "count": 14,
+      "sha256": "cc04d058dedff94105029c2915a0cd6d7a515ec174f5da081b18fc5674ce3f70"
     },
     {
       "file": "planner/templates/planner/feedback.html",
@@ -387,6 +405,12 @@
       "sha256": "521044f9e8dcff1d4f306f9d46a3f52d92d2afb57f3af1698d1c535e09710c56"
     },
     {
+      "file": "planner/templates/planner/subject_analysis.html",
+      "metric": "nonempty_markup_style_lines",
+      "count": 10,
+      "sha256": "a3f54073dffb92627e426a45330e10008836a04220a189a83ba034654c28290b"
+    },
+    {
       "file": "planner/templates/planner/task_confirm_delete.html",
       "metric": "nonempty_markup_style_lines",
       "count": 3,
@@ -449,8 +473,8 @@
     {
       "file": "planner/views.py",
       "metric": "python_ast_statements",
-      "count": 146,
-      "sha256": "fc812f880522f786bb4d06f1e2137c517fa07507bec8eb5005739a2cc89d40eb"
+      "count": 149,
+      "sha256": "2ec8dfbb424af0348ec1a4c99562becfef13e62a2891641c53a9283147ffaf3b"
     },
     {
       "file": "planner/workload.py",
@@ -477,7 +501,7 @@
       "sha256": "188184357e33fdc21e2b7748d2bd1759e50110f12adbaa882959422d1f59a54f"
     }
   ],
-  "mixed_code_units": 1876,
+  "mixed_code_units": 2019,
   "method": "Python AST statements excluding docstrings/tests/migrations; HTML/CSS nonempty lines excluding comments. Different units are reported separately; not a standardized logical-line certification.",
   "application_models": [
     {
@@ -776,7 +800,8 @@
     "/analytics/",
     "/research/",
     "/tasks/history/",
-    "/workload/"
+    "/workload/",
+    "/analytics/subjects/"
   ],
   "roles": [
     "student",

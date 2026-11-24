@@ -1,5 +1,7 @@
 """Реальный Chrome в изолированной копии приложения с вымышленными данными."""
 import argparse
+import csv
+import io
 from datetime import date, datetime, timedelta
 import re
 from zoneinfo import ZoneInfo
@@ -109,22 +111,50 @@ def verify(app_python, output):
                     page.get_by_role('link',name='История статусов задач',exact=True).click();page.wait_for_url('**/tasks/history/')
                     assert page.get_by_role('heading',name='Браузерная учебная задача',exact=True).count()==2
                     shot('history-desktop.png');checks.append('state_history_and_stale_form')
+                    visit(f'/tasks/{task_id}/edit/')
+                    editing=page.locator('main form').evaluate('(form)=>Object.fromEntries(new FormData(form))')
+                    page.locator('#id_planned_minutes').fill('41');page.get_by_role('button',name='Сохранить',exact=True).click();page.wait_for_url('**/tasks/')
+                    stale_edit=context.request.post(url+f'/tasks/{task_id}/edit/',form={**editing,'planned_minutes':'42'},headers={'Referer':url+f'/tasks/{task_id}/edit/'})
+                    assert stale_edit.status==200 and 'уже изменилась' in stale_edit.text()
+                    visit(f'/tasks/{task_id}/edit/');assert page.locator('#id_planned_minutes').input_value()=='41'
+                    checks.append('old_editor_cannot_overwrite_newer_task')
+                    visit('/research/')
+                    with page.expect_download() as result:page.get_by_role('link',name='Скачать данные сравнения JSON',exact=True).click()
+                    history_json=target/'history-comparison.json';result.value.save_as(history_json)
+                    observed=json.loads(history_json.read_text())['history']
+                    assert not observed['comparable'] and observed['periods'][1]['coverage']=='partial'
+                    assert observed['periods'][1]['completions']==1 and observed['periods'][1]['reopenings']==1
+                    page.locator('#status-history').screenshot(path=str(output/'research-history-desktop.png'));screenshots.append('research-history-desktop.png')
+                    checks.append('observed_history_export_without_historical_zeros')
                     visit('/analytics/');shot('analytics-desktop.png')
                     with page.expect_download() as result:page.get_by_role('link',name='Отчёт PDF',exact=True).click()
                     pdf=output/'study-browser.pdf';result.value.save_as(pdf);assert pdf.read_bytes().startswith(b'%PDF-');checks.append('pdf_download')
+                    visit('/analytics/')
+                    page.get_by_role('link',name='Время и планы по дисциплинам',exact=True).click()
+                    empty_subject=page.locator('article').filter(has=page.get_by_role('heading',name='Без дисциплины',exact=True))
+                    assert 'Записано 24 мин' in empty_subject.inner_text();shot('subjects-desktop.png')
+                    with page.expect_download() as result:page.get_by_role('link',name='Скачать все дисциплины CSV',exact=True).click()
+                    subjects_csv=target/'subjects.csv';result.value.save_as(subjects_csv)
+                    subjects=list(csv.DictReader(io.StringIO(subjects_csv.read_text(encoding='utf-8-sig')),delimiter=';'))
+                    assert next(row for row in subjects if row['type']=='subject' and row['subject_id']=='')['actual']=='24'
+                    empty_subject.get_by_role('link',name='Все задачи этой дисциплины',exact=True).click()
+                    assert page.locator('article.task').count()==1
+                    checks.append('subject_distribution_csv_and_null_drilldown')
                     visit('/calendar/');assert 'Браузерная учебная задача' in page.locator('main').inner_text();shot('calendar-desktop.png')
                     with page.expect_download() as result:page.get_by_role('link',name='Скачать месяц iCalendar',exact=True).click()
                     ics=output/'study-browser.ics';result.value.save_as(ics);assert b'BEGIN:VCALENDAR' in ics.read_bytes();checks.append('calendar_and_ics_download')
                     for path in ['/week/','/goals/','/groups/','/references/','/profile/','/research/']:visit(path)
                     checks.append('private_navigation')
                     page.set_viewport_size({'width':390,'height':844})
-                    for path,name in [('/tasks/','tasks-mobile.png'),('/calendar/','calendar-mobile.png'),('/research/','research-mobile.png'),('/workload/','workload-mobile.png'),('/tasks/history/','history-mobile.png')]:
+                    for path,name in [('/tasks/','tasks-mobile.png'),('/calendar/','calendar-mobile.png'),('/research/','research-mobile.png'),('/workload/','workload-mobile.png'),('/tasks/history/','history-mobile.png'),('/analytics/subjects/','subjects-mobile.png')]:
                         visit(path)
                         if path=='/research/':
                             assert page.locator('#id_after_end').input_value()==date.today().isoformat()
                             page.get_by_role('button',name='Сравнить',exact=True).click()
                             assert 'Изменение' in page.locator('main').inner_text()
                         shot(name)
+                        if path=='/research/':
+                            page.locator('#status-history').screenshot(path=str(output/'research-history-mobile.png'));screenshots.append('research-history-mobile.png')
                         dimensions=page.evaluate('({width:document.documentElement.clientWidth,scroll:document.documentElement.scrollWidth})')
                         assert dimensions['scroll']<=dimensions['width']+1,(path,dimensions)
                     checks.append('mobile_390_layout');assert not errors,errors;checks.append('no_browser_page_errors')

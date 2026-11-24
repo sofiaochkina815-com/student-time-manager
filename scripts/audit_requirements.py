@@ -40,7 +40,7 @@ def audit():
         'application_models':models,'domain_table_count':sum(row['model'] not in technical for row in models),'technical_models':sorted(technical),
         'public_guides':[{'path':'/guide/'+row[0]+'/','title':row[1]} for row in [(slug,data['title']) for slug,data in PUBLIC_PAGES.items()]],
         'staff_pages':[{'path':path,'title':title} for path,title in [('/cabinet/','Обзор'),('/cabinet/users/','Аккаунты'),('/cabinet/groups/','Группы'),('/cabinet/catalog/subjects/','Дисциплины'),('/cabinet/catalog/categories/','Категории'),('/cabinet/time/','Качество учёта'),('/cabinet/feedback/','Обращения')]],
-        'private_pages':['/tasks/','/week/','/calendar/','/references/','/groups/','/goals/','/sessions/','/profile/','/analytics/','/research/','/tasks/history/','/workload/'],
+        'private_pages':['/tasks/','/week/','/calendar/','/references/','/groups/','/goals/','/sessions/','/profile/','/analytics/','/research/','/tasks/history/','/workload/','/analytics/subjects/'],
         'roles':['student','curator','staff'],'limitations':['Counts describe source structure, not semantic correctness. Formal logical-line counting and report formatting require the supervisor’s accepted method.']}
     target=ROOT/'reports/requirements-audit-v1.json';target.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n')
     print(json.dumps({k:result[k] for k in ['mixed_code_units','domain_table_count','technical_models']},ensure_ascii=False))
