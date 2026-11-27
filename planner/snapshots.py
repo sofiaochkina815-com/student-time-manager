@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from .models import WorkloadSnapshot
+from .snapshot_validation import valid_snapshot
 from .workload import WorkloadForm, workload_snapshot
 
 LIMIT=100
@@ -77,7 +78,7 @@ def snapshot_capture(request):
 @login_required
 def snapshot_detail(request,pk):
     item=get_object_or_404(WorkloadSnapshot,owner=request.user,pk=pk)
-    if digest(item.payload)!=item.sha256 or not isinstance(item.payload,dict) or item.payload.get('schema_version')!=1:
+    if not valid_snapshot(item.payload) or digest(item.payload)!=item.sha256:
         return render(request,'planner/snapshots.html',{'errors':['Нарушена целостность снимка. Содержимое не показано.']},status=409)
     if request.GET.get('format')=='json':
         response=JsonResponse({'sha256':item.sha256,'payload':item.payload},json_dumps_params={'ensure_ascii':False})

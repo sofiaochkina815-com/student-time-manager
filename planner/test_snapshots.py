@@ -68,3 +68,14 @@ class WorkloadSnapshotTests(TestCase):
     def test_new_past_snapshot_rejected_without_reconstructing_history(self):
         with self.assertRaises(ValidationError):capture(self.user,{**self.values,'week':self.start-timedelta(days=7)})
         self.assertFalse(WorkloadSnapshot.objects.exists())
+
+    def test_structurally_damaged_snapshot_is_refused_even_with_matching_hash(self):
+        from copy import deepcopy
+        item=capture(self.user,self.values)
+        original=deepcopy(item.payload)
+        for change in [{'rows':None},{'required':99999},{'rows':[]},{'start':'bad'},{'actual':True}]:
+            payload={**original,**change}
+            WorkloadSnapshot.objects.filter(pk=item.pk).update(payload=payload,sha256=digest(payload))
+            self.assertEqual(self.client.get(f'/workload/snapshots/{item.pk}/').status_code,409)
+            self.assertEqual(self.client.get(f'/workload/snapshots/{item.pk}/?format=json').status_code,409)
+        self.assertTrue(WorkloadSnapshot.objects.filter(pk=item.pk).exists())
