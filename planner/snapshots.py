@@ -80,6 +80,19 @@ def snapshot_detail(request,pk):
     item=get_object_or_404(WorkloadSnapshot,owner=request.user,pk=pk)
     if not valid_snapshot(item.payload) or digest(item.payload)!=item.sha256:
         return render(request,'planner/snapshots.html',{'errors':['Нарушена целостность снимка. Содержимое не показано.']},status=409)
+    if request.GET.get('format')=='csv':
+        import csv,io
+        from django.http import HttpResponse
+        stream=io.StringIO();writer=csv.writer(stream,delimiter=';',lineterminator='\n')
+        writer.writerow(['snapshot_id','week','captured_at','task_id','title','due_date','planned','spent','remaining','backlog'])
+        for row in item.payload['rows']:
+            title=row['title'];title="'"+title if title.lstrip().startswith(('=','+','-','@')) else title
+            writer.writerow([item.pk,item.week_start.isoformat(),item.created_at.isoformat(),row['task_id'],title,
+                row['due_date'],row['planned'],row['spent'],row['remaining'],row['backlog']])
+        response=HttpResponse('\ufeff'+stream.getvalue(),content_type='text/csv; charset=utf-8')
+        response['Content-Disposition']=f'attachment; filename="workload-snapshot-{item.pk}.csv"'
+        response['Cache-Control']='private, no-store'
+        return response
     if request.GET.get('format')=='json':
         response=JsonResponse({'sha256':item.sha256,'payload':item.payload},json_dumps_params={'ensure_ascii':False})
         response['Content-Disposition']=f'attachment; filename="workload-snapshot-{item.pk}.json"'

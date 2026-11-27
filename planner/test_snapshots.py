@@ -79,3 +79,14 @@ class WorkloadSnapshotTests(TestCase):
             self.assertEqual(self.client.get(f'/workload/snapshots/{item.pk}/').status_code,409)
             self.assertEqual(self.client.get(f'/workload/snapshots/{item.pk}/?format=json').status_code,409)
         self.assertTrue(WorkloadSnapshot.objects.filter(pk=item.pk).exists())
+
+    def test_csv_uses_frozen_rows_and_protects_formula_text(self):
+        import csv,io
+        self.task.title='=SUM(1)';self.task.save()
+        item=capture(self.user,self.values)
+        self.task.title='Changed';self.task.save()
+        response=self.client.get(f'/workload/snapshots/{item.pk}/?format=csv')
+        rows=list(csv.DictReader(io.StringIO(response.content.decode('utf-8-sig')),delimiter=';'))
+        self.assertEqual(rows[0]['title'],"'=SUM(1)")
+        self.assertEqual(rows[0]['remaining'],'80')
+        self.assertEqual(response['Cache-Control'],'private, no-store')
